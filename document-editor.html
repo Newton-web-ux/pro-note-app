@@ -11,466 +11,207 @@
 <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
 <style>
 :root {
-  --accent: #2b579a;
-  --accent-dark: #1e3f73;
-  --accent-light: #dce6f7;
-  --bg: #f3f3f3;
-  --white: #ffffff;
-  --border: #d0d0d0;
-  --text: #1a1a1a;
-  --muted: #666;
-  --danger: #c0392b;
-  --toolbar-bg: #f8f8f8;
-  --tab-active: #2b579a;
-  --ribbon-height: 88px;
+  --accent:#2b579a; --accent-dark:#1e3f73; --accent-light:#dce6f7;
+  --bg:#f3f3f3; --white:#ffffff; --border:#d0d0d0; --text:#1a1a1a;
+  --muted:#666; --danger:#c0392b; --toolbar-bg:#f8f8f8;
+  --green:#217346; --orange:#d55c00; --purple:#6b3fa0;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  font-size: 13px;
-  overflow: hidden;
-}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;font-size:13px;overflow:hidden;}
 
-/* ── Title Bar ── */
-.title-bar {
-  background: var(--accent);
-  color: white;
-  padding: 6px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  user-select: none;
-  flex-shrink: 0;
-}
-.title-bar-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-}
-.title-bar-name {
-  font-weight: 600;
-}
-.title-bar-doc {
-  opacity: 0.8;
-  font-size: 12px;
-}
-.title-bar-right {
-  display: flex;
-  gap: 6px;
-}
-.hdr-btn {
-  background: rgba(255,255,255,0.15);
-  border: none;
-  color: white;
-  border-radius: 3px;
-  padding: 4px 10px;
-  cursor: pointer;
-  font-size: 12px;
-  font-family: inherit;
-  font-weight: 500;
-  transition: background 0.15s;
-}
-.hdr-btn:hover { background: rgba(255,255,255,0.25); }
-.hdr-btn.primary { background: rgba(255,255,255,0.9); color: var(--accent); font-weight: 600; }
-.hdr-btn.primary:hover { background: white; }
+/* Title Bar */
+.title-bar{background:var(--accent);color:white;padding:5px 14px;display:flex;align-items:center;justify-content:space-between;user-select:none;flex-shrink:0;}
+.title-bar-left{display:flex;align-items:center;gap:10px;}
+.title-bar-name{font-weight:700;font-size:14px;}
+.title-bar-doc{opacity:.8;font-size:12px;}
+.title-bar-right{display:flex;gap:5px;}
+.hdr-btn{background:rgba(255,255,255,.15);border:none;color:white;border-radius:3px;padding:4px 10px;cursor:pointer;font-size:11px;font-family:inherit;font-weight:500;transition:background .15s;}
+.hdr-btn:hover{background:rgba(255,255,255,.28);}
+.hdr-btn.primary{background:rgba(255,255,255,.9);color:var(--accent);font-weight:700;}
+.hdr-btn.primary:hover{background:white;}
 
-/* ── Ribbon Tabs ── */
-.ribbon-tabs {
-  background: var(--accent);
-  display: flex;
-  align-items: flex-end;
-  padding: 0 16px;
-  flex-shrink: 0;
-  gap: 2px;
-}
-.tab-btn {
-  background: rgba(255,255,255,0.1);
-  border: none;
-  color: rgba(255,255,255,0.85);
-  border-radius: 3px 3px 0 0;
-  padding: 6px 14px;
-  cursor: pointer;
-  font-size: 12px;
-  font-family: inherit;
-  font-weight: 500;
-  transition: all 0.15s;
-  border-bottom: 2px solid transparent;
-}
-.tab-btn:hover { background: rgba(255,255,255,0.2); }
-.tab-btn.active {
-  background: var(--toolbar-bg);
-  color: var(--text);
-  border-bottom: 2px solid var(--toolbar-bg);
-}
+/* Ribbon Tabs */
+.ribbon-tabs{background:var(--accent);display:flex;align-items:flex-end;padding:0 14px;flex-shrink:0;gap:2px;}
+.tab-btn{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.85);border-radius:3px 3px 0 0;padding:6px 13px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:500;transition:all .15s;}
+.tab-btn:hover{background:rgba(255,255,255,.2);}
+.tab-btn.active{background:var(--toolbar-bg);color:var(--text);}
 
-/* ── Ribbon Toolbar ── */
-.ribbon-toolbar {
-  background: var(--toolbar-bg);
-  border-bottom: 2px solid var(--border);
-  padding: 6px 12px;
-  display: none;
-  align-items: flex-start;
-  gap: 2px;
-  flex-wrap: wrap;
-  flex-shrink: 0;
-  min-height: 62px;
-}
-.ribbon-toolbar.active { display: flex; }
+/* Ribbon Toolbar */
+.ribbon-toolbar{background:var(--toolbar-bg);border-bottom:2px solid var(--border);padding:5px 10px;display:none;align-items:flex-start;gap:1px;flex-wrap:wrap;flex-shrink:0;min-height:60px;overflow-x:auto;}
+.ribbon-toolbar.active{display:flex;}
 
-.ribbon-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 6px;
-  border-right: 1px solid var(--border);
-  gap: 4px;
-}
-.ribbon-group:last-child { border-right: none; }
-.ribbon-group-label {
-  font-size: 9px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-top: auto;
-}
-.ribbon-group-row {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  flex-wrap: nowrap;
-}
+.ribbon-group{display:flex;flex-direction:column;align-items:center;padding:0 5px;border-right:1px solid var(--border);gap:3px;min-width:fit-content;}
+.ribbon-group:last-child{border-right:none;}
+.rg-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:auto;white-space:nowrap;}
+.rg-row{display:flex;align-items:center;gap:2px;flex-wrap:nowrap;}
 
-.tb-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  padding: 4px 6px;
-  border: 1px solid transparent;
-  background: transparent;
-  border-radius: 3px;
-  cursor: pointer;
-  color: var(--text);
-  font-size: 10px;
-  font-family: inherit;
-  transition: all 0.12s;
-  min-width: 36px;
-  white-space: nowrap;
-}
-.tb-btn:hover { background: var(--accent-light); border-color: #b8cef0; color: var(--accent); }
-.tb-btn:active { background: #c0d8f5; }
-.tb-btn .tb-icon { font-size: 17px; line-height: 1; }
-.tb-btn .tb-icon.text { font-size: 13px; font-weight: 700; font-family: 'Segoe UI', sans-serif; height: 17px; display: flex; align-items: center; }
-.tb-btn.small { flex-direction: row; gap: 4px; min-width: auto; font-size: 11px; padding: 4px 7px; }
-.tb-btn.small .tb-icon { font-size: 13px; }
+.tb{display:flex;flex-direction:column;align-items:center;gap:1px;padding:3px 5px;border:1px solid transparent;background:transparent;border-radius:3px;cursor:pointer;color:var(--text);font-size:10px;font-family:inherit;transition:all .12s;min-width:34px;white-space:nowrap;}
+.tb:hover{background:var(--accent-light);border-color:#b8cef0;color:var(--accent);}
+.tb:active{background:#c0d8f5;}
+.tb .ti{font-size:16px;line-height:1;}
+.tb.sm{flex-direction:row;gap:3px;min-width:auto;font-size:11px;padding:3px 6px;}
+.tb.sm .ti{font-size:12px;}
+.tb.active-btn{background:var(--accent-light);border-color:var(--accent);color:var(--accent);}
 
-.tb-select {
-  padding: 4px 6px;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  background: white;
-  font-size: 12px;
-  font-family: inherit;
-  color: var(--text);
-  cursor: pointer;
-  height: 26px;
-}
-.tb-select:hover { border-color: var(--accent); }
-.tb-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(43,87,154,0.15); }
+.ts{padding:3px 5px;border:1px solid var(--border);border-radius:3px;background:white;font-size:11px;font-family:inherit;color:var(--text);cursor:pointer;height:24px;}
+.ts:hover{border-color:var(--accent);}
+.ts:focus{outline:none;border-color:var(--accent);}
+.ti-input{padding:2px 5px;border:1px solid var(--border);border-radius:3px;background:white;font-size:11px;font-family:inherit;color:var(--text);height:24px;}
+.ti-input:focus{outline:none;border-color:var(--accent);}
+.tc{width:26px;height:24px;border:1px solid var(--border);border-radius:3px;cursor:pointer;padding:1px;}
+.tdiv{width:1px;height:30px;background:var(--border);margin:0 2px;}
 
-.tb-input {
-  padding: 3px 6px;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  background: white;
-  font-size: 12px;
-  font-family: inherit;
-  color: var(--text);
-  height: 26px;
-}
-.tb-input:focus { outline: none; border-color: var(--accent); }
+/* Ruler */
+.ruler{height:20px;background:#f0f0f0;border-bottom:1px solid var(--border);flex-shrink:0;position:relative;overflow:hidden;user-select:none;}
+.ruler-inner{width:816px;height:100%;position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:flex-end;}
+.ruler-mark{position:absolute;bottom:0;font-size:8px;color:#999;text-align:center;}
+.ruler-tick{position:absolute;bottom:0;width:1px;background:#ccc;}
+.ruler-margin{position:absolute;top:0;bottom:0;background:rgba(43,87,154,.08);}
 
-.tb-color {
-  width: 28px;
-  height: 26px;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  cursor: pointer;
-  padding: 2px;
-}
+/* Layout */
+.editor-layout{display:flex;flex:1;overflow:hidden;}
 
-.tb-divider { width: 1px; height: 32px; background: var(--border); margin: 0 2px; }
+/* Sidebar */
+.pages-panel{width:160px;background:#e4e4e4;border-right:1px solid var(--border);overflow-y:auto;padding:8px 6px;flex-shrink:0;display:flex;flex-direction:column;gap:10px;}
+.pages-panel::-webkit-scrollbar{width:3px;}
+.pages-panel::-webkit-scrollbar-thumb{background:#bbb;border-radius:2px;}
+.ps-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:3px;}
+.page-thumb{background:white;border:2px solid var(--border);border-radius:3px;padding:5px;cursor:pointer;transition:border-color .15s;text-align:center;}
+.page-thumb:hover{border-color:var(--accent);}
+.page-thumb.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
+.pt-preview{width:100%;height:80px;background:white;border:1px solid #e0e0e0;margin-bottom:3px;display:flex;flex-direction:column;padding:4px;gap:2px;position:relative;overflow:hidden;}
+.pt-line{height:2px;background:#ddd;border-radius:1px;}
+.pt-label{font-size:9px;color:var(--muted);}
 
-/* ── Layout ── */
-.editor-layout {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
+/* Comments sidebar */
+.comments-panel{width:220px;background:white;border-left:1px solid var(--border);overflow-y:auto;padding:8px;flex-shrink:0;display:none;flex-direction:column;gap:6px;}
+.comments-panel.open{display:flex;}
+.comment-card{background:#fffbe6;border:1px solid #f0d060;border-radius:4px;padding:8px;font-size:11px;}
+.comment-author{font-weight:700;color:var(--accent);margin-bottom:2px;}
+.comment-text{color:var(--text);line-height:1.5;}
+.comment-time{font-size:9px;color:var(--muted);margin-top:3px;}
+.comment-actions{display:flex;gap:4px;margin-top:4px;}
+.comment-actions button{font-size:9px;padding:1px 5px;border:1px solid var(--border);border-radius:2px;background:white;cursor:pointer;font-family:inherit;}
+.comment-actions button:hover{background:var(--accent-light);color:var(--accent);border-color:var(--accent);}
 
-/* ── Pages Sidebar ── */
-.pages-panel {
-  width: 168px;
-  background: #e8e8e8;
-  border-right: 1px solid var(--border);
-  overflow-y: auto;
-  padding: 10px 8px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.pages-panel::-webkit-scrollbar { width: 4px; }
-.pages-panel::-webkit-scrollbar-thumb { background: #bbb; border-radius: 2px; }
-.panel-section-title {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: var(--muted);
-  margin-bottom: 4px;
-}
-.page-thumb {
-  background: white;
-  border: 2px solid var(--border);
-  border-radius: 3px;
-  padding: 6px;
-  cursor: pointer;
-  transition: border-color 0.15s;
-  text-align: center;
-}
-.page-thumb:hover { border-color: var(--accent); }
-.page-thumb.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-.page-thumb-preview {
-  width: 100%;
-  height: 90px;
-  background: white;
-  border: 1px solid #e0e0e0;
-  margin-bottom: 4px;
-  display: flex;
-  flex-direction: column;
-  padding: 4px;
-  gap: 2px;
-}
-.page-thumb-line {
-  height: 2px;
-  background: #e0e0e0;
-  border-radius: 1px;
-}
-.page-thumb-label {
-  font-size: 10px;
-  color: var(--muted);
-}
+/* Canvas */
+.canvas-area{flex:1;overflow:auto;background:#808080;display:flex;flex-direction:column;align-items:center;padding:20px;gap:20px;}
+.canvas-area::-webkit-scrollbar{width:10px;height:10px;}
+.canvas-area::-webkit-scrollbar-thumb{background:#666;border-radius:5px;}
 
-.version-item {
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 5px 7px;
-  font-size: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin-bottom: 4px;
-}
-.version-time { font-weight: 500; }
-.version-actions { display: flex; gap: 3px; }
-.version-actions button {
-  font-size: 9px;
-  padding: 2px 5px;
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  background: white;
-  cursor: pointer;
-  font-family: inherit;
-}
-.version-actions button:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+.page{background:white;width:816px;min-height:1056px;padding:96px 96px 80px;position:relative;box-shadow:0 4px 20px rgba(0,0,0,.5);color:#000;outline:none;flex-shrink:0;font-size:12pt;line-height:1.6;font-family:'Calibri','Segoe UI',sans-serif;}
+.page::after{content:attr(data-page-num);position:absolute;bottom:28px;width:100%;left:0;text-align:center;font-size:9pt;color:#bbb;pointer-events:none;}
+.page[contenteditable="true"]{caret-color:var(--accent);}
+.page table{border-collapse:collapse;width:100%;margin:8px 0;}
+.page td,.page th{border:1px solid #999;padding:5px 8px;}
+.page th{background:#f0f4ff;font-weight:600;}
+.page blockquote{border-left:4px solid var(--accent);margin:12px 0;padding:8px 16px;background:#f0f4ff;font-style:italic;color:#333;}
+.page .callout{border:1px solid #f0d060;background:#fffbe6;border-radius:6px;padding:12px 16px;margin:10px 0;}
+.page .callout-info{border-color:#90caf9;background:#e3f2fd;}
+.page .callout-warn{border-color:#ffb74d;background:#fff3e0;}
+.page .callout-error{border-color:#ef9a9a;background:#ffebee;}
+.page h1{font-size:24pt;color:#1e3f73;border-bottom:2px solid #1e3f73;padding-bottom:6px;margin:16px 0 10px;}
+.page h2{font-size:18pt;color:#2b579a;margin:12px 0 8px;}
+.page h3{font-size:14pt;color:#2b579a;margin:10px 0 6px;}
+.page .toc{border:1px solid var(--border);border-radius:4px;padding:16px;margin:12px 0;background:#fafafa;}
+.page .toc-title{font-weight:700;font-size:13pt;margin-bottom:8px;color:var(--accent);}
+.page .toc-item{padding:2px 0;font-size:11pt;}
+.page .toc-item.h1{font-weight:600;}
+.page .toc-item.h2{padding-left:20px;color:var(--muted);}
+.page .toc-item.h3{padding-left:40px;color:var(--muted);}
+.page .footnote-ref{font-size:8pt;vertical-align:super;color:var(--accent);cursor:pointer;}
+.page .footnotes{border-top:1px solid var(--border);margin-top:20px;padding-top:8px;font-size:9pt;color:var(--muted);}
+.comment-highlight{background:#fff3cd;border-bottom:2px solid #f0d060;cursor:pointer;}
+.tracked-insert{color:#216609;text-decoration:underline;background:rgba(33,102,9,.08);}
+.tracked-delete{color:var(--danger);text-decoration:line-through;background:rgba(192,57,43,.08);}
+img.draggable{position:absolute;cursor:move;max-width:90%;}
+.text-box{position:absolute;border:2px dashed #999;padding:10px;min-width:100px;min-height:50px;background:white;cursor:move;resize:both;overflow:auto;}
+.text-box[contenteditable]{outline:none;}
 
-/* ── Canvas Area ── */
-.canvas-area {
-  flex: 1;
-  overflow: auto;
-  background: #808080;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 24px 20px;
-  gap: 20px;
-}
-.canvas-area::-webkit-scrollbar { width: 10px; height: 10px; }
-.canvas-area::-webkit-scrollbar-thumb { background: #666; border-radius: 5px; }
-.canvas-area::-webkit-scrollbar-track { background: #808080; }
+/* Status Bar */
+.status-bar{background:var(--accent);color:rgba(255,255,255,.85);font-size:11px;padding:3px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:8px;}
+.sb-right{display:flex;gap:14px;align-items:center;}
+.sb-lang{cursor:pointer;text-decoration:underline dotted;}
 
-.page {
-  background: white;
-  width: 816px;
-  min-height: 1056px;
-  padding: 96px 96px 80px;
-  position: relative;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-  color: #000;
-  outline: none;
-  flex-shrink: 0;
-  font-size: 12pt;
-  line-height: 1.6;
-  font-family: 'Calibri', 'Segoe UI', sans-serif;
-}
-.page::before {
-  content: attr(data-page-num);
-  position: absolute;
-  bottom: 36px;
-  width: 100%;
-  left: 0;
-  text-align: center;
-  font-size: 10pt;
-  color: #999;
-  pointer-events: none;
-}
-.page[contenteditable="true"] { caret-color: var(--accent); }
-.page table { border-collapse: collapse; width: 100%; margin: 8px 0; }
-.page td, .page th { border: 1px solid #999; padding: 5px 8px; }
-.page th { background: #f0f4ff; font-weight: 600; }
-img.draggable { position: absolute; cursor: move; max-width: 90%; }
+/* Find Bar */
+.find-bar{display:none;background:white;border-bottom:1px solid var(--border);padding:5px 14px;gap:7px;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.1);flex-shrink:0;}
+.find-bar.open{display:flex;}
+.find-bar input{padding:3px 7px;border:1px solid var(--border);border-radius:3px;font-size:12px;font-family:inherit;width:180px;}
+.find-bar input:focus{outline:none;border-color:var(--accent);}
+.find-bar button{padding:3px 9px;border:1px solid var(--border);border-radius:3px;background:white;cursor:pointer;font-size:11px;font-family:inherit;}
+.find-bar button:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent);}
+.find-bar-close{margin-left:auto;background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);}
+.find-count{font-size:11px;color:var(--muted);}
 
-/* ── Status Bar ── */
-.status-bar {
-  background: var(--accent);
-  color: rgba(255,255,255,0.85);
-  font-size: 11px;
-  padding: 3px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-}
-.status-bar-right { display: flex; gap: 16px; }
+/* Modals */
+.modal-mask{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:8000;align-items:center;justify-content:center;}
+.modal-mask.open{display:flex;}
+.modal{background:white;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,.35);width:420px;overflow:hidden;max-height:90vh;display:flex;flex-direction:column;}
+.modal.wide{width:560px;}
+.modal-head{background:var(--accent);color:white;padding:11px 15px;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.modal-head button{background:none;border:none;color:white;cursor:pointer;font-size:18px;line-height:1;}
+.modal-body{padding:18px;overflow-y:auto;flex:1;}
+.modal-body label{font-size:11px;font-weight:700;display:block;margin-bottom:4px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+.modal-body input,.modal-body select,.modal-body textarea{width:100%;padding:7px 9px;border:1px solid var(--border);border-radius:3px;font-size:12px;font-family:inherit;margin-bottom:12px;}
+.modal-body input:focus,.modal-body select:focus,.modal-body textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(43,87,154,.15);}
+.modal-body textarea{resize:vertical;min-height:80px;}
+.modal-foot{padding:10px 18px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:7px;flex-shrink:0;}
+.btn{padding:6px 14px;border-radius:3px;border:1px solid var(--border);cursor:pointer;font-size:12px;font-family:inherit;font-weight:500;}
+.btn-primary{background:var(--accent);color:white;border-color:var(--accent);}
+.btn-primary:hover{background:var(--accent-dark);}
+.btn-secondary{background:white;}
+.btn-secondary:hover{background:var(--bg);}
+.btn-danger{background:var(--danger);color:white;border-color:var(--danger);}
 
-/* ── Floating Graph Panel ── */
-#floatingPanel {
-  display: none;
-  position: fixed;
-  top: 120px;
-  left: 200px;
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-  z-index: 9999;
-  overflow: hidden;
-  min-width: 440px;
-}
-#floatingPanelHeader {
-  background: var(--accent);
-  color: white;
-  padding: 8px 12px;
-  cursor: move;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-  font-weight: 600;
-}
-#floatingPanelHeader .close-btn {
-  background: rgba(255,255,255,0.2);
-  border: none;
-  color: white;
-  border-radius: 3px;
-  padding: 2px 8px;
-  cursor: pointer;
-  font-size: 14px;
-}
-.graph-body { padding: 12px; }
-#graphCanvas {
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  display: block;
-  margin-bottom: 10px;
-}
-.graph-controls {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-.graph-controls input {
-  flex: 1;
-  padding: 5px 8px;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  font-size: 12px;
-  font-family: inherit;
-}
-.graph-controls button {
-  padding: 5px 10px;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  background: white;
-  cursor: pointer;
-  font-size: 11px;
-  font-family: inherit;
-}
-.graph-controls button:hover { background: var(--accent-light); border-color: var(--accent); }
+/* Spell check underline */
+.spell-err{text-decoration:underline wavy red;cursor:pointer;}
 
-/* ── Slideshow overlay ── */
-.slideshow-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: black;
-  z-index: 9998;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-.slideshow-overlay.active { display: flex; }
-.slideshow-slide {
-  background: white;
-  width: 90vw;
-  height: 85vh;
-  overflow: hidden;
-  border-radius: 4px;
-  padding: 60px;
-  font-size: 14pt;
-}
-.slideshow-controls {
-  margin-top: 16px;
-  display: flex;
-  gap: 12px;
-}
-.slideshow-controls button {
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.3);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-  font-family: inherit;
-}
-.slideshow-controls button:hover { background: rgba(255,255,255,0.25); }
+/* Print Preview */
+.print-preview-area{padding:20px;background:#808080;overflow-y:auto;flex:1;display:flex;flex-direction:column;align-items:center;gap:16px;}
+.pp-page{background:white;width:600px;min-height:780px;padding:64px;box-shadow:0 2px 12px rgba(0,0,0,.4);pointer-events:none;font-size:10pt;color:#000;}
 
-/* ── Find/Replace Bar ── */
-.find-bar {
-  display: none;
-  background: white;
-  border-bottom: 1px solid var(--border);
-  padding: 6px 16px;
-  gap: 8px;
-  align-items: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-.find-bar.open { display: flex; }
-.find-bar input { padding: 4px 8px; border: 1px solid var(--border); border-radius: 3px; font-size: 12px; font-family: inherit; width: 200px; }
-.find-bar input:focus { outline: none; border-color: var(--accent); }
-.find-bar button { padding: 4px 10px; border: 1px solid var(--border); border-radius: 3px; background: white; cursor: pointer; font-size: 11px; font-family: inherit; }
-.find-bar button:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
-.find-bar-close { margin-left: auto; background: none; border: none; cursor: pointer; font-size: 16px; color: var(--muted); }
+/* Slideshow */
+.ss-overlay{display:none;position:fixed;inset:0;background:black;z-index:9000;flex-direction:column;align-items:center;justify-content:center;}
+.ss-overlay.active{display:flex;}
+.ss-slide{background:white;width:90vw;height:82vh;overflow:hidden;border-radius:4px;padding:60px;font-size:14pt;}
+.ss-controls{margin-top:14px;display:flex;gap:10px;}
+.ss-controls button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:white;padding:7px 14px;border-radius:4px;cursor:pointer;font-size:12px;font-family:inherit;}
+.ss-controls button:hover{background:rgba(255,255,255,.25);}
+
+/* Graph panel */
+#graphPanel{display:none;position:fixed;top:120px;left:200px;background:white;border:1px solid var(--border);border-radius:6px;box-shadow:0 8px 32px rgba(0,0,0,.25);z-index:7000;overflow:hidden;min-width:460px;}
+#graphPanelHeader{background:var(--accent);color:white;padding:7px 12px;cursor:move;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;}
+#graphPanelHeader button{background:rgba(255,255,255,.2);border:none;color:white;border-radius:3px;padding:2px 8px;cursor:pointer;}
+.graph-body{padding:10px;}
+#graphCanvas{border:1px solid var(--border);border-radius:3px;display:block;margin-bottom:8px;}
+.graph-ctrl{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.graph-ctrl input{flex:1;padding:4px 7px;border:1px solid var(--border);border-radius:3px;font-size:11px;font-family:inherit;min-width:0;}
+.graph-ctrl button{padding:4px 9px;border:1px solid var(--border);border-radius:3px;background:white;cursor:pointer;font-size:11px;font-family:inherit;}
+.graph-ctrl button:hover{background:var(--accent-light);border-color:var(--accent);}
+
+/* Version items */
+.version-item{background:white;border:1px solid var(--border);border-radius:3px;padding:5px 6px;font-size:10px;display:flex;flex-direction:column;gap:3px;margin-bottom:3px;}
+.version-time{font-weight:600;}
+.version-actions{display:flex;gap:3px;}
+.version-actions button{font-size:9px;padding:2px 5px;border:1px solid var(--border);border-radius:2px;background:white;cursor:pointer;font-family:inherit;}
+.version-actions button:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent);}
+
+/* Tables context toolbar */
+.table-ctx{display:none;position:fixed;background:white;border:1px solid var(--border);border-radius:4px;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:5000;padding:5px;gap:4px;flex-wrap:wrap;}
+.table-ctx.show{display:flex;}
+.table-ctx button{font-size:10px;padding:3px 7px;border:1px solid var(--border);border-radius:3px;background:white;cursor:pointer;font-family:inherit;}
+.table-ctx button:hover{background:var(--accent-light);border-color:var(--accent);}
+
+/* Spellcheck popup */
+.spell-popup{display:none;position:fixed;background:white;border:1px solid var(--border);border-radius:4px;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:6000;padding:6px;min-width:140px;}
+.spell-popup.show{display:block;}
+.spell-popup div{padding:4px 8px;cursor:pointer;font-size:12px;border-radius:2px;}
+.spell-popup div:hover{background:var(--accent-light);color:var(--accent);}
+.spell-popup .sp-sep{border-top:1px solid var(--border);margin:3px 0;}
+
+/* Columns layout helper */
+.two-col{column-count:2;column-gap:40px;}
+.three-col{column-count:3;column-gap:30px;}
 </style>
 </head>
 <body>
@@ -478,16 +219,18 @@ img.draggable { position: absolute; cursor: move; max-width: 90%; }
 <!-- Title Bar -->
 <div class="title-bar">
   <div class="title-bar-left">
-    <span style="background:rgba(255,255,255,0.2);padding:2px 7px;border-radius:3px;font-size:12px;">📄</span>
+    <span style="background:rgba(255,255,255,.2);padding:2px 7px;border-radius:3px;">📄</span>
     <span class="title-bar-name">Newtonian Academy</span>
     <span class="title-bar-doc" id="docTitleDisplay">— Loading...</span>
+    <span id="autoSaveIndicator" style="font-size:10px;opacity:.7;"></span>
   </div>
   <div class="title-bar-right">
-    <button class="hdr-btn" onclick="saveVersion()">💾 Save Version</button>
-    <button class="hdr-btn" onclick="exportPDF()">📄 Export PDF</button>
-    <button class="hdr-btn" onclick="exportPNG()">🖼 Export PNG</button>
+    <button class="hdr-btn" onclick="saveVersion()">💾 Version</button>
+    <button class="hdr-btn" onclick="openPrintPreview()">🖨 Print</button>
+    <button class="hdr-btn" onclick="exportPDF()">📄 PDF</button>
+    <button class="hdr-btn" onclick="exportPNG()">🖼 PNG</button>
     <button class="hdr-btn primary" onclick="saveDocument()">💾 Save</button>
-    <button class="hdr-btn" onclick="goDashboard()">🏠 Dashboard</button>
+    <button class="hdr-btn" onclick="goDashboard()">🏠 Home</button>
   </div>
 </div>
 
@@ -495,736 +238,1609 @@ img.draggable { position: absolute; cursor: move; max-width: 90%; }
 <div class="ribbon-tabs">
   <button class="tab-btn active" data-tab="home" onclick="switchTab('home')">Home</button>
   <button class="tab-btn" data-tab="insert" onclick="switchTab('insert')">Insert</button>
+  <button class="tab-btn" data-tab="layout" onclick="switchTab('layout')">Layout</button>
+  <button class="tab-btn" data-tab="references" onclick="switchTab('references')">References</button>
+  <button class="tab-btn" data-tab="review" onclick="switchTab('review')">Review</button>
   <button class="tab-btn" data-tab="design" onclick="switchTab('design')">Design</button>
-  <button class="tab-btn" data-tab="slideshow" onclick="switchTab('slideshow')">Slideshow</button>
-  <button class="tab-btn" data-tab="version" onclick="switchTab('version')">History</button>
   <button class="tab-btn" data-tab="view" onclick="switchTab('view')">View</button>
+  <button class="tab-btn" data-tab="slideshow" onclick="switchTab('slideshow')">Slideshow</button>
 </div>
 
-<!-- Home Toolbar -->
+<!-- ════════════════ HOME ════════════════ -->
 <div id="home" class="ribbon-toolbar active">
-  <!-- Clipboard -->
   <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <button class="tb-btn" onclick="formatText('undo')" title="Undo (Ctrl+Z)">
-        <span class="tb-icon">↶</span> Undo
-      </button>
-      <button class="tb-btn" onclick="formatText('redo')" title="Redo (Ctrl+Y)">
-        <span class="tb-icon">↷</span> Redo
-      </button>
+    <div class="rg-row">
+      <button class="tb" onclick="doCopy()" title="Copy"><span class="ti">📋</span>Copy</button>
+      <button class="tb" onclick="doCut()" title="Cut"><span class="ti">✂️</span>Cut</button>
+      <button class="tb" onclick="doPaste()" title="Paste"><span class="ti">📌</span>Paste</button>
     </div>
-    <div class="ribbon-group-label">Clipboard</div>
+    <div class="rg-label">Clipboard</div>
   </div>
-
-  <!-- Font -->
   <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <select class="tb-select" onchange="applyFont(this.value)" title="Font family" style="width:120px;">
-        <option value="Calibri">Calibri</option>
-        <option value="Times New Roman">Times New Roman</option>
-        <option value="Arial">Arial</option>
-        <option value="Georgia">Georgia</option>
-        <option value="Courier New">Courier New</option>
-        <option value="Segoe UI">Segoe UI</option>
-        <option value="Verdana">Verdana</option>
+    <div class="rg-row">
+      <select class="ts" id="fontFamily" onchange="applyFont(this.value)" style="width:120px;">
+        <option>Calibri</option><option>Arial</option><option>Times New Roman</option>
+        <option>Georgia</option><option>Courier New</option><option>Verdana</option>
+        <option>Segoe UI</option><option>Trebuchet MS</option><option>Garamond</option><option>Palatino</option>
       </select>
-      <input class="tb-input" type="number" min="6" max="96" value="12" style="width:50px;" onchange="applyFontSize(this.value)" title="Font size">
+      <input class="ti-input" type="number" id="fontSize" min="6" max="96" value="12" style="width:46px;" onchange="applyFontSize(this.value)">
+      <button class="tb sm" onclick="changeFontSize(2)" title="Increase font"><span class="ti">A↑</span></button>
+      <button class="tb sm" onclick="changeFontSize(-2)" title="Decrease font"><span class="ti">A↓</span></button>
     </div>
-    <div class="ribbon-group-row">
-      <button class="tb-btn small" onclick="formatText('bold')" title="Bold (Ctrl+B)"><span class="tb-icon text"><b>B</b></span></button>
-      <button class="tb-btn small" onclick="formatText('italic')" title="Italic (Ctrl+I)"><span class="tb-icon text"><i>I</i></span></button>
-      <button class="tb-btn small" onclick="formatText('underline')" title="Underline (Ctrl+U)"><span class="tb-icon text"><u>U</u></span></button>
-      <button class="tb-btn small" onclick="formatText('strikeThrough')" title="Strikethrough"><span class="tb-icon text" style="text-decoration:line-through">S</span></button>
-      <button class="tb-btn small" onclick="formatText('superscript')" title="Superscript"><span class="tb-icon text">X²</span></button>
-      <button class="tb-btn small" onclick="formatText('subscript')" title="Subscript"><span class="tb-icon text">X₂</span></button>
-      <input class="tb-color" type="color" onchange="formatText('foreColor', this.value)" title="Font Color" value="#000000">
-      <input class="tb-color" id="highlightColorPicker" type="color" value="#ffff00" title="Highlight Color">
-      <button class="tb-btn small" onclick="highlightText()" title="Highlight">🖍</button>
-      <button class="tb-btn small" onclick="clearFormatting()" title="Clear Formatting">🧹</button>
+    <div class="rg-row">
+      <button class="tb sm" id="btnBold" onclick="toggleFormat('bold','btnBold')" title="Bold (Ctrl+B)"><span class="ti" style="font-weight:900;font-size:13px;">B</span></button>
+      <button class="tb sm" id="btnItalic" onclick="toggleFormat('italic','btnItalic')" title="Italic (Ctrl+I)"><span class="ti" style="font-style:italic;font-size:13px;">I</span></button>
+      <button class="tb sm" id="btnUnderline" onclick="toggleFormat('underline','btnUnderline')" title="Underline (Ctrl+U)"><span class="ti" style="text-decoration:underline;font-size:13px;">U</span></button>
+      <button class="tb sm" onclick="fmt('strikeThrough')" title="Strikethrough"><span class="ti" style="text-decoration:line-through;font-size:13px;">S</span></button>
+      <button class="tb sm" onclick="fmt('superscript')" title="Superscript"><span class="ti" style="font-size:11px;">X²</span></button>
+      <button class="tb sm" onclick="fmt('subscript')" title="Subscript"><span class="ti" style="font-size:11px;">X₂</span></button>
+      <div class="tdiv"></div>
+      <label title="Font Color" style="display:flex;align-items:center;gap:1px;cursor:pointer;">
+        <span class="ti" style="font-size:12px;">A</span>
+        <input class="tc" style="width:20px;height:14px;" type="color" value="#000000" onchange="fmt('foreColor',this.value)" title="Font Color">
+      </label>
+      <label title="Highlight" style="display:flex;align-items:center;gap:1px;cursor:pointer;">
+        <span class="ti" style="font-size:13px;">🖍</span>
+        <input class="tc" style="width:20px;height:14px;" id="hlColor" type="color" value="#ffff00">
+      </label>
+      <button class="tb sm" onclick="highlightText()" title="Apply Highlight">HL</button>
+      <button class="tb sm" onclick="fmt('removeFormat')" title="Clear Formatting">🧹</button>
     </div>
-    <div class="ribbon-group-label">Font</div>
+    <div class="rg-label">Font</div>
   </div>
-
-  <!-- Paragraph -->
   <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <select class="tb-select" onchange="formatText('formatBlock', this.value)" title="Heading style">
+    <div class="rg-row">
+      <select class="ts" onchange="fmt('formatBlock',this.value)" style="width:110px;">
         <option value="p">Normal</option>
-        <option value="h1">Heading 1</option>
-        <option value="h2">Heading 2</option>
-        <option value="h3">Heading 3</option>
-        <option value="h4">Heading 4</option>
-        <option value="pre">Preformatted</option>
+        <option value="h1">Heading 1</option><option value="h2">Heading 2</option>
+        <option value="h3">Heading 3</option><option value="h4">Heading 4</option>
+        <option value="blockquote">Quote</option><option value="pre">Code</option>
+      </select>
+      <select class="ts" id="lineSpacingSelect" onchange="applyLineSpacing(this.value)" style="width:80px;">
+        <option value="1">Single</option><option value="1.15">1.15</option>
+        <option value="1.5" selected>1.5</option><option value="2">Double</option><option value="2.5">2.5</option>
       </select>
     </div>
-    <div class="ribbon-group-row">
-      <button class="tb-btn small" onclick="formatText('justifyLeft')" title="Align Left">≡L</button>
-      <button class="tb-btn small" onclick="formatText('justifyCenter')" title="Center">≡C</button>
-      <button class="tb-btn small" onclick="formatText('justifyRight')" title="Align Right">≡R</button>
-      <button class="tb-btn small" onclick="formatText('justifyFull')" title="Justify">≡J</button>
-      <div class="tb-divider"></div>
-      <button class="tb-btn small" onclick="formatText('insertUnorderedList')" title="Bullet List">• List</button>
-      <button class="tb-btn small" onclick="formatText('insertOrderedList')" title="Numbered List">1. List</button>
-      <button class="tb-btn small" onclick="formatText('indent')" title="Indent">→</button>
-      <button class="tb-btn small" onclick="formatText('outdent')" title="Outdent">←</button>
+    <div class="rg-row">
+      <button class="tb sm" onclick="fmt('justifyLeft')" title="Align Left">⬛L</button>
+      <button class="tb sm" onclick="fmt('justifyCenter')" title="Center">⬛C</button>
+      <button class="tb sm" onclick="fmt('justifyRight')" title="Right">⬛R</button>
+      <button class="tb sm" onclick="fmt('justifyFull')" title="Justify">⬛J</button>
+      <div class="tdiv"></div>
+      <button class="tb sm" onclick="fmt('insertUnorderedList')" title="Bullets">• UL</button>
+      <button class="tb sm" onclick="fmt('insertOrderedList')" title="Numbering">1. OL</button>
+      <button class="tb sm" onclick="fmt('indent')" title="Indent">→</button>
+      <button class="tb sm" onclick="fmt('outdent')" title="Outdent">←</button>
+      <div class="tdiv"></div>
+      <button class="tb sm" onclick="applyParaBorder()" title="Paragraph Border">▭</button>
+      <button class="tb sm" onclick="applyParaShading()" title="Paragraph Shading">🎨</button>
     </div>
-    <div class="ribbon-group-label">Paragraph</div>
+    <div class="rg-label">Paragraph</div>
   </div>
-
-  <!-- Line Spacing -->
   <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <select class="tb-select" onchange="applyLineSpacing(this.value)" title="Line Spacing">
-        <option value="1">Single</option>
-        <option value="1.5" selected>1.5x</option>
-        <option value="2">Double</option>
-      </select>
+    <div class="rg-row">
+      <button class="tb" onclick="toggleFindBar()"><span class="ti">🔍</span>Find</button>
+      <button class="tb" onclick="openReplaceModal()"><span class="ti">🔄</span>Replace</button>
+      <button class="tb" onclick="selectAll()"><span class="ti">⬜</span>Select All</button>
     </div>
-    <div class="ribbon-group-label">Spacing</div>
+    <div class="rg-label">Editing</div>
   </div>
-
-  <!-- Find -->
   <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <button class="tb-btn" onclick="toggleFindBar()" title="Find & Replace">
-        <span class="tb-icon">🔍</span> Find
-      </button>
+    <div class="rg-row">
+      <button class="tb" onclick="fmt('undo')"><span class="ti">↶</span>Undo</button>
+      <button class="tb" onclick="fmt('redo')"><span class="ti">↷</span>Redo</button>
     </div>
-    <div class="ribbon-group-label">Editing</div>
+    <div class="rg-label">History</div>
   </div>
 </div>
 
-<!-- Insert Toolbar -->
+<!-- ════════════════ INSERT ════════════════ -->
 <div id="insert" class="ribbon-toolbar">
   <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <button class="tb-btn" onclick="addPage()"><span class="tb-icon">📄</span> Add Page</button>
-      <button class="tb-btn" onclick="deletePage()"><span class="tb-icon">🗑</span> Delete</button>
+    <div class="rg-row">
+      <button class="tb" onclick="addPage()"><span class="ti">📄</span>Add Page</button>
+      <button class="tb" onclick="insertPageBreak()"><span class="ti">⤵</span>Page Break</button>
     </div>
-    <div class="ribbon-group-label">Pages</div>
+    <div class="rg-label">Pages</div>
   </div>
   <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <button class="tb-btn" onclick="insertTable()"><span class="tb-icon">⊞</span> Table</button>
-      <button class="tb-btn" onclick="insertImage()"><span class="tb-icon">🖼</span> Image</button>
-      <button class="tb-btn" onclick="deleteSelectedImage()"><span class="tb-icon">✂</span> Del Image</button>
-      <button class="tb-btn" onclick="insertHR()"><span class="tb-icon">—</span> Line</button>
+    <div class="rg-row">
+      <button class="tb" onclick="insertTable()"><span class="ti">⊞</span>Table</button>
+      <button class="tb" onclick="insertImage()"><span class="ti">🖼</span>Picture</button>
+      <button class="tb" onclick="insertTextBox()"><span class="ti">⬜</span>Text Box</button>
+      <button class="tb" onclick="openShapePicker()"><span class="ti">🔷</span>Shapes</button>
     </div>
-    <div class="ribbon-group-label">Objects</div>
+    <div class="rg-label">Illustrations</div>
   </div>
   <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <input class="tb-input" type="text" id="latexInput" placeholder="LaTeX: x^2+y^2" style="width:140px;">
-      <button class="tb-btn small" onclick="insertLatex()">∑ Insert</button>
+    <div class="rg-row">
+      <button class="tb" onclick="insertHR()"><span class="ti">—</span>H. Rule</button>
+      <button class="tb" onclick="openCalloutModal()"><span class="ti">💬</span>Callout</button>
+      <button class="tb" onclick="insertBlockquote()"><span class="ti">❝</span>Quote</button>
+      <button class="tb" onclick="insertCodeBlock()"><span class="ti">&lt;/&gt;</span>Code</button>
     </div>
-    <div class="ribbon-group-row">
-      <select class="tb-select" id="mathDropdown" onchange="insertSelectedMathSymbol()" style="width:160px;">
-        <option value="">— Insert Symbol —</option>
-        <optgroup label="Basic">
-          <option value="π">π (Pi)</option><option value="∞">∞ (Infinity)</option>
-          <option value="√">√ (Sqrt)</option><option value="≈">≈ (Approx)</option>
-          <option value="≠">≠ (Not Equal)</option><option value="≤">≤ (Less/Equal)</option>
-          <option value="≥">≥ (Greater/Equal)</option><option value="Δ">Δ (Delta)</option>
-        </optgroup>
-        <optgroup label="Greek">
-          <option value="α">α Alpha</option><option value="β">β Beta</option>
-          <option value="γ">γ Gamma</option><option value="θ">θ Theta</option>
-          <option value="λ">λ Lambda</option><option value="μ">μ Mu</option>
-          <option value="σ">σ Sigma</option><option value="Ω">Ω Omega</option>
-        </optgroup>
-        <optgroup label="Arrows">
-          <option value="→">→ Right</option><option value="←">← Left</option>
-          <option value="↑">↑ Up</option><option value="↓">↓ Down</option>
-          <option value="⇌">⇌ Equilibrium</option>
-        </optgroup>
-        <optgroup label="Operators">
-          <option value="×">× Multiply</option><option value="÷">÷ Divide</option>
-          <option value="∑">∑ Sum</option><option value="∫">∫ Integral</option>
-          <option value="∂">∂ Partial</option>
-        </optgroup>
-        <optgroup label="Sets">
-          <option value="∈">∈ Element</option><option value="∉">∉ Not Element</option>
-          <option value="∪">∪ Union</option><option value="∩">∩ Intersect</option>
-          <option value="⊂">⊂ Subset</option><option value="∅">∅ Empty Set</option>
-        </optgroup>
+    <div class="rg-label">Blocks</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <input class="ti-input" type="text" id="linkUrl" placeholder="URL..." style="width:140px;">
+      <button class="tb sm" onclick="insertLink()">🔗 Link</button>
+    </div>
+    <div class="rg-row">
+      <input class="ti-input" type="text" id="latexInput" placeholder="LaTeX: \frac{a}{b}" style="width:140px;">
+      <button class="tb sm" onclick="insertLatex()">∑ Math</button>
+    </div>
+    <div class="rg-label">Links & Math</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <select class="ts" id="mathDropdown" onchange="insertMathSymbol()" style="width:150px;">
+        <option value="">— Symbol —</option>
+        <optgroup label="Basic"><option value="π">π Pi</option><option value="∞">∞ Infinity</option><option value="√">√ Sqrt</option><option value="≈">≈ Approx</option><option value="≠">≠ Not Equal</option><option value="≤">≤ ≤</option><option value="≥">≥ ≥</option><option value="Δ">Δ Delta</option></optgroup>
+        <optgroup label="Greek"><option value="α">α</option><option value="β">β</option><option value="γ">γ</option><option value="θ">θ</option><option value="λ">λ</option><option value="μ">μ</option><option value="σ">σ</option><option value="Ω">Ω</option><option value="φ">φ</option><option value="ψ">ψ</option></optgroup>
+        <optgroup label="Arrows"><option value="→">→</option><option value="←">←</option><option value="↑">↑</option><option value="↓">↓</option><option value="⇌">⇌</option><option value="⟹">⟹</option><option value="⟺">⟺</option></optgroup>
+        <optgroup label="Operators"><option value="×">× ×</option><option value="÷">÷ ÷</option><option value="∑">∑ Sum</option><option value="∫">∫ Integral</option><option value="∂">∂ Partial</option><option value="∇">∇ Nabla</option><option value="±">± ±</option></optgroup>
+        <optgroup label="Sets"><option value="∈">∈</option><option value="∉">∉</option><option value="∪">∪</option><option value="∩">∩</option><option value="⊂">⊂</option><option value="∅">∅</option><option value="ℝ">ℝ</option><option value="ℕ">ℕ</option></optgroup>
       </select>
-      <button class="tb-btn small" onclick="openGraphPanel()"><span class="tb-icon">📈</span> Graph</button>
+      <button class="tb sm" onclick="openGraphPanel()">📈 Graph</button>
     </div>
-    <div class="ribbon-group-label">Math & Symbols</div>
+    <div class="rg-label">Math & Symbols</div>
   </div>
   <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <input class="tb-input" type="text" id="linkUrl" placeholder="https://..." style="width:150px;">
-      <button class="tb-btn small" onclick="insertLink()">🔗 Link</button>
+    <div class="rg-row">
+      <button class="tb" onclick="insertDate()"><span class="ti">📅</span>Date</button>
+      <button class="tb" onclick="insertSpecialChar()"><span class="ti">Ω</span>Special</button>
     </div>
-    <div class="ribbon-group-label">Links</div>
+    <div class="rg-label">Text</div>
   </div>
 </div>
 
-<!-- Design Toolbar -->
+<!-- ════════════════ LAYOUT ════════════════ -->
+<div id="layout" class="ribbon-toolbar">
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" onclick="setMargins('normal')"><span class="ti">📄</span>Normal</button>
+      <button class="tb" onclick="setMargins('narrow')"><span class="ti">📄</span>Narrow</button>
+      <button class="tb" onclick="setMargins('wide')"><span class="ti">📄</span>Wide</button>
+    </div>
+    <div class="rg-label">Margins</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" onclick="setOrientation('portrait')"><span class="ti">📄</span>Portrait</button>
+      <button class="tb" onclick="setOrientation('landscape')"><span class="ti">🗒</span>Landscape</button>
+    </div>
+    <div class="rg-label">Orientation</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" onclick="setPageSize('letter')"><span class="ti">📋</span>Letter</button>
+      <button class="tb" onclick="setPageSize('a4')"><span class="ti">📋</span>A4</button>
+      <button class="tb" onclick="setPageSize('legal')"><span class="ti">📋</span>Legal</button>
+    </div>
+    <div class="rg-label">Paper Size</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" onclick="setColumns(1)"><span class="ti">▬</span>One</button>
+      <button class="tb" onclick="setColumns(2)"><span class="ti">⬚</span>Two</button>
+      <button class="tb" onclick="setColumns(3)"><span class="ti">⬚</span>Three</button>
+    </div>
+    <div class="rg-label">Columns</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <label style="font-size:11px;color:var(--muted);">Before:</label>
+      <input class="ti-input" type="number" id="spaceBefore" value="0" min="0" max="200" style="width:46px;" onchange="applyParaSpacing()">
+      <label style="font-size:11px;color:var(--muted);">After:</label>
+      <input class="ti-input" type="number" id="spaceAfter" value="8" min="0" max="200" style="width:46px;" onchange="applyParaSpacing()">
+    </div>
+    <div class="rg-row">
+      <label style="font-size:11px;color:var(--muted);">Indent L:</label>
+      <input class="ti-input" type="number" id="indentLeft" value="0" min="0" max="400" style="width:46px;" onchange="applyParaSpacing()">
+      <label style="font-size:11px;color:var(--muted);">R:</label>
+      <input class="ti-input" type="number" id="indentRight" value="0" min="0" max="400" style="width:46px;" onchange="applyParaSpacing()">
+    </div>
+    <div class="rg-label">Paragraph Spacing</div>
+  </div>
+</div>
+
+<!-- ════════════════ REFERENCES ════════════════ -->
+<div id="references" class="ribbon-toolbar">
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" onclick="insertTOC()"><span class="ti">📑</span>Insert TOC</button>
+      <button class="tb" onclick="updateTOC()"><span class="ti">🔄</span>Update TOC</button>
+    </div>
+    <div class="rg-label">Table of Contents</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" onclick="insertFootnote()"><span class="ti">¹</span>Footnote</button>
+      <button class="tb" onclick="insertEndnote()"><span class="ti">ⁱ</span>Endnote</button>
+    </div>
+    <div class="rg-label">Footnotes</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" onclick="openCitationModal()"><span class="ti">📚</span>Citation</button>
+      <button class="tb" onclick="insertBibliography()"><span class="ti">📖</span>Bibliography</button>
+    </div>
+    <div class="rg-label">Citations</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" onclick="insertCaption()"><span class="ti">🏷</span>Caption</button>
+      <button class="tb" onclick="insertCrossRef()"><span class="ti">🔗</span>Cross-ref</button>
+    </div>
+    <div class="rg-label">Captions</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" onclick="insertBookmark()"><span class="ti">🔖</span>Bookmark</button>
+      <button class="tb" onclick="insertIndexEntry()"><span class="ti">🗂</span>Index Entry</button>
+    </div>
+    <div class="rg-label">Index</div>
+  </div>
+</div>
+
+<!-- ════════════════ REVIEW ════════════════ -->
+<div id="review" class="ribbon-toolbar">
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" onclick="runSpellCheck()"><span class="ti">🔤</span>Spell Check</button>
+      <button class="tb" onclick="openThesaurus()"><span class="ti">📖</span>Thesaurus</button>
+      <button class="tb" onclick="openWordCount()"><span class="ti">🔢</span>Word Count</button>
+    </div>
+    <div class="rg-label">Proofing</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" onclick="openCommentModal()"><span class="ti">💬</span>New Comment</button>
+      <button class="tb" onclick="toggleCommentsPanel()"><span class="ti">👁</span>Show Comments</button>
+    </div>
+    <div class="rg-label">Comments</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" id="btnTrackChanges" onclick="toggleTrackChanges()"><span class="ti">✏️</span>Track Changes</button>
+      <button class="tb" onclick="acceptAllChanges()"><span class="ti">✅</span>Accept All</button>
+      <button class="tb" onclick="rejectAllChanges()"><span class="ti">❌</span>Reject All</button>
+    </div>
+    <div class="rg-label">Tracking</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" onclick="compareVersions()"><span class="ti">⚖</span>Compare</button>
+      <button class="tb" onclick="openReadingMode()"><span class="ti">📖</span>Read Mode</button>
+    </div>
+    <div class="rg-label">Compare</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" onclick="setLanguage()"><span class="ti">🌐</span>Language</button>
+      <button class="tb" onclick="openTranslate()"><span class="ti">🔁</span>Translate</button>
+    </div>
+    <div class="rg-label">Language</div>
+  </div>
+</div>
+
+<!-- ════════════════ DESIGN ════════════════ -->
 <div id="design" class="ribbon-toolbar">
   <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <select class="tb-select" onchange="applyTemplate(this.value)" style="width:120px;">
+    <div class="rg-row">
+      <select class="ts" onchange="applyTemplate(this.value)" style="width:120px;">
         <option value="">Template...</option>
-        <option value="classic">Classic</option>
-        <option value="modern">Modern</option>
-        <option value="academic">Academic</option>
-        <option value="dark">Dark Mode</option>
+        <option value="classic">Classic</option><option value="modern">Modern</option>
+        <option value="academic">Academic</option><option value="minimal">Minimal</option>
+        <option value="dark">Dark Mode</option><option value="report">Report</option>
       </select>
     </div>
-    <div class="ribbon-group-label">Templates</div>
+    <div class="rg-label">Templates</div>
   </div>
   <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <input class="tb-color" type="color" id="bgColorPicker" value="#ffffff" onchange="changeBackgroundColor(this.value)" title="Page background color">
+    <div class="rg-row">
+      <select class="ts" onchange="applyTheme(this.value)" style="width:110px;">
+        <option value="">Theme Colors...</option>
+        <option value="blue">Office Blue</option><option value="green">Green</option>
+        <option value="red">Red</option><option value="purple">Purple</option><option value="teal">Teal</option>
+      </select>
     </div>
-    <div class="ribbon-group-label">Background</div>
+    <div class="rg-label">Colors</div>
   </div>
   <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <select class="tb-select" onchange="applyGradient(this.value)" style="width:120px;">
-        <option value="">No Gradient</option>
-        <option value="linear-gradient(to right, #ff7e5f, #feb47b)">Sunset</option>
-        <option value="linear-gradient(to right, #6a11cb, #2575fc)">Purple Blue</option>
-        <option value="linear-gradient(to right, #00c6ff, #0072ff)">Ocean</option>
+    <div class="rg-row">
+      <label style="font-size:10px;color:var(--muted);">Page BG</label>
+      <input class="tc" type="color" id="bgColorPicker" value="#ffffff" onchange="changeBackgroundColor(this.value)">
+      <select class="ts" onchange="applyGradient(this.value)" style="width:100px;">
+        <option value="">Gradient...</option>
+        <option value="linear-gradient(to right,#ff7e5f,#feb47b)">Sunset</option>
+        <option value="linear-gradient(to right,#6a11cb,#2575fc)">Purple Blue</option>
+        <option value="linear-gradient(to right,#00c6ff,#0072ff)">Ocean</option>
         <option value="linear-gradient(135deg,#f5f7fa,#c3cfe2)">Silver</option>
       </select>
     </div>
-    <div class="ribbon-group-label">Gradient</div>
-  </div>
-  <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <select class="tb-select" onchange="applyPattern(this.value)" style="width:100px;">
-        <option value="">No Pattern</option>
-        <option value="dots">Dots</option>
-        <option value="grid">Grid</option>
-        <option value="lines">Lines</option>
+    <div class="rg-row">
+      <select class="ts" onchange="applyPattern(this.value)" style="width:90px;">
+        <option value="">Pattern...</option>
+        <option value="dots">Dots</option><option value="grid">Grid</option><option value="lines">Lines</option>
+      </select>
+      <select class="ts" onchange="applyPageBorder(this.value)" style="width:100px;">
+        <option value="">Page Border...</option>
+        <option value="solid">Solid</option><option value="double">Double</option>
+        <option value="dotted">Dotted</option><option value="none">None</option>
       </select>
     </div>
-    <div class="ribbon-group-label">Pattern</div>
+    <div class="rg-label">Page Background</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <input class="ti-input" type="text" id="watermarkText" placeholder="Watermark text..." style="width:130px;">
+      <button class="tb sm" onclick="applyWatermark()">Apply</button>
+      <button class="tb sm" onclick="removeWatermark()">Remove</button>
+    </div>
+    <div class="rg-label">Watermark</div>
   </div>
 </div>
 
-<!-- Slideshow Toolbar -->
-<div id="slideshow" class="ribbon-toolbar">
-  <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <button class="tb-btn" onclick="startFromBeginning()"><span class="tb-icon">⏮</span> From Start</button>
-      <button class="tb-btn" onclick="startFromCurrent()"><span class="tb-icon">▶</span> From Here</button>
-      <button class="tb-btn" onclick="stopSlideshow()"><span class="tb-icon">⏹</span> Stop</button>
-    </div>
-    <div class="ribbon-group-label">Presentation</div>
-  </div>
-  <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <label style="font-size:11px;color:var(--muted);">Slide Duration (s):</label>
-      <input class="tb-input" type="number" id="slideDuration" value="3" min="1" max="60" style="width:54px;">
-    </div>
-    <div class="ribbon-group-label">Timing</div>
-  </div>
-</div>
-
-<!-- Version Toolbar -->
-<div id="version" class="ribbon-toolbar">
-  <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <button class="tb-btn" onclick="saveVersion()"><span class="tb-icon">💾</span> Save Version</button>
-      <button class="tb-btn" onclick="loadVersionFromPanel()"><span class="tb-icon">📂</span> Load Selected</button>
-      <button class="tb-btn" onclick="deleteVersionFromPanel()"><span class="tb-icon">🗑</span> Delete Selected</button>
-    </div>
-    <div class="ribbon-group-label">Version History</div>
-  </div>
-</div>
-
-<!-- View Toolbar -->
+<!-- ════════════════ VIEW ════════════════ -->
 <div id="view" class="ribbon-toolbar">
   <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <button class="tb-btn small" onclick="zoomPage(1.1)"><span class="tb-icon">🔍</span> Zoom In</button>
-      <button class="tb-btn small" onclick="zoomPage(0.9)"><span class="tb-icon">🔎</span> Zoom Out</button>
-      <button class="tb-btn small" onclick="resetZoom()">100%</button>
+    <div class="rg-row">
+      <button class="tb sm" onclick="zoomPage(1.1)">🔍 In</button>
+      <button class="tb sm" onclick="zoomPage(0.9)">🔎 Out</button>
+      <button class="tb sm" onclick="setZoom(1)">100%</button>
+      <button class="tb sm" onclick="setZoom(0.75)">75%</button>
+      <button class="tb sm" onclick="setZoom(1.25)">125%</button>
     </div>
-    <div class="ribbon-group-label">Zoom</div>
+    <div class="rg-label">Zoom</div>
   </div>
   <div class="ribbon-group">
-    <div class="ribbon-group-row">
-      <button class="tb-btn small" onclick="togglePagePanel()"><span class="tb-icon">📋</span> Pages Panel</button>
+    <div class="rg-row">
+      <button class="tb" id="btnRuler" onclick="toggleRuler()"><span class="ti">📏</span>Ruler</button>
+      <button class="tb" id="btnGridlines" onclick="toggleGridlines()"><span class="ti">⊞</span>Gridlines</button>
+      <button class="tb" id="btnPara" onclick="toggleParaMarks()"><span class="ti">¶</span>Para Marks</button>
     </div>
-    <div class="ribbon-group-label">Panels</div>
+    <div class="rg-label">Show</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" onclick="togglePagePanel()"><span class="ti">📋</span>Pages</button>
+      <button class="tb" onclick="toggleCommentsPanel()"><span class="ti">💬</span>Comments</button>
+      <button class="tb" onclick="openPrintPreview()"><span class="ti">🖨</span>Print Preview</button>
+    </div>
+    <div class="rg-label">Window</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" onclick="deletePage()"><span class="ti">🗑</span>Del Page</button>
+      <button class="tb" onclick="duplicatePage()"><span class="ti">📑</span>Duplicate</button>
+    </div>
+    <div class="rg-label">Pages</div>
+  </div>
+</div>
+
+<!-- ════════════════ SLIDESHOW ════════════════ -->
+<div id="slideshow" class="ribbon-toolbar">
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <button class="tb" onclick="startFromBeginning()"><span class="ti">⏮</span>From Start</button>
+      <button class="tb" onclick="startFromCurrent()"><span class="ti">▶</span>From Here</button>
+      <button class="tb" onclick="stopSlideshow()"><span class="ti">⏹</span>Stop</button>
+    </div>
+    <div class="rg-label">Presentation</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="rg-row">
+      <label style="font-size:11px;color:var(--muted);">Duration (s):</label>
+      <input class="ti-input" type="number" id="slideDuration" value="3" min="1" max="60" style="width:50px;">
+      <button class="tb sm" onclick="saveVersion()">💾 Checkpoint</button>
+    </div>
+    <div class="rg-label">Settings</div>
   </div>
 </div>
 
 <!-- Find Bar -->
 <div class="find-bar" id="findBar">
-  <span style="font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;">Find:</span>
-  <input type="text" id="findInput" placeholder="Search text..." onkeydown="if(event.key==='Enter')findText()">
-  <span style="font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;">Replace:</span>
-  <input type="text" id="replaceInput" placeholder="Replace with...">
-  <button onclick="findText()">Find</button>
-  <button onclick="replaceText()">Replace</button>
-  <button onclick="replaceAllText()">Replace All</button>
+  <span style="font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap;">Find:</span>
+  <input type="text" id="findInput" placeholder="Search..." onkeydown="if(event.key==='Enter')findNext()">
+  <span class="find-count" id="findCount"></span>
+  <button onclick="findNext()">Next</button>
+  <button onclick="findPrev()">Prev</button>
+  <button onclick="openReplaceModal()">Replace...</button>
   <button class="find-bar-close" onclick="toggleFindBar()">×</button>
 </div>
 
-<!-- Editor Layout -->
-<div class="editor-layout">
+<!-- Ruler -->
+<div class="ruler" id="ruler">
+  <div class="ruler-inner" id="rulerInner"></div>
+</div>
 
-  <!-- Pages Sidebar -->
+<!-- Layout -->
+<div class="editor-layout">
   <aside class="pages-panel" id="pagesPanel">
     <div>
-      <div class="panel-section-title">Pages</div>
+      <div class="ps-title">Pages</div>
       <div id="thumbnails"></div>
     </div>
     <div>
-      <div class="panel-section-title">Version History</div>
+      <div class="ps-title">Versions</div>
       <div id="versionPanel"></div>
     </div>
   </aside>
-
-  <!-- Canvas -->
-  <div class="canvas-area" id="contentArea">
-    <!-- Pages dynamically added -->
+  <div class="canvas-area" id="contentArea"></div>
+  <div class="comments-panel" id="commentsPanel">
+    <div class="ps-title">Comments</div>
+    <div id="commentsList"></div>
+    <button onclick="openCommentModal()" style="margin-top:6px;padding:5px;border:1px dashed var(--border);border-radius:3px;background:none;cursor:pointer;font-size:11px;width:100%;">+ Add Comment</button>
   </div>
 </div>
 
 <!-- Status Bar -->
 <div class="status-bar">
   <span id="statusText">Ready</span>
-  <div class="status-bar-right">
+  <div class="sb-right">
     <span id="wordCount">Words: 0</span>
+    <span id="charCount">Chars: 0</span>
     <span id="pageInfo">Page 1 of 1</span>
+    <span class="sb-lang" id="langLabel" onclick="setLanguage()" title="Language">EN</span>
     <span id="zoomLabel">100%</span>
   </div>
 </div>
 
+<!-- ═══════════ MODALS ═══════════ -->
+
+<!-- Replace Modal -->
+<div class="modal-mask" id="replaceModal">
+  <div class="modal">
+    <div class="modal-head">🔄 Find & Replace <button onclick="closeModal('replaceModal')">×</button></div>
+    <div class="modal-body">
+      <label>Find</label><input type="text" id="rmFind" placeholder="Find text...">
+      <label>Replace With</label><input type="text" id="rmReplace" placeholder="Replace with...">
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('replaceModal')">Close</button>
+      <button class="btn btn-secondary" onclick="doReplace()">Replace</button>
+      <button class="btn btn-primary" onclick="doReplaceAll()">Replace All</button>
+    </div>
+  </div>
+</div>
+
+<!-- Comment Modal -->
+<div class="modal-mask" id="commentModal">
+  <div class="modal">
+    <div class="modal-head">💬 Add Comment <button onclick="closeModal('commentModal')">×</button></div>
+    <div class="modal-body">
+      <label>Author</label><input type="text" id="commentAuthor" value="Author" placeholder="Your name">
+      <label>Comment</label><textarea id="commentText" placeholder="Enter your comment..."></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('commentModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitComment()">Add Comment</button>
+    </div>
+  </div>
+</div>
+
+<!-- Callout Modal -->
+<div class="modal-mask" id="calloutModal">
+  <div class="modal">
+    <div class="modal-head">💬 Insert Callout <button onclick="closeModal('calloutModal')">×</button></div>
+    <div class="modal-body">
+      <label>Type</label>
+      <select id="calloutType">
+        <option value="">Default (Yellow)</option>
+        <option value="callout-info">Info (Blue)</option>
+        <option value="callout-warn">Warning (Orange)</option>
+        <option value="callout-error">Error (Red)</option>
+      </select>
+      <label>Content</label>
+      <textarea id="calloutContent" placeholder="Callout text...">Note: Important information here.</textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('calloutModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitCallout()">Insert</button>
+    </div>
+  </div>
+</div>
+
+<!-- Citation Modal -->
+<div class="modal-mask" id="citationModal">
+  <div class="modal wide">
+    <div class="modal-head">📚 Insert Citation <button onclick="closeModal('citationModal')">×</button></div>
+    <div class="modal-body">
+      <label>Citation Style</label>
+      <select id="citeStyle"><option value="apa">APA</option><option value="mla">MLA</option><option value="chicago">Chicago</option><option value="harvard">Harvard</option></select>
+      <label>Author(s)</label><input type="text" id="citeAuthor" placeholder="Last, First">
+      <label>Title</label><input type="text" id="citeTitle" placeholder="Title of work">
+      <label>Year</label><input type="text" id="citeYear" placeholder="2024">
+      <label>Publisher / Journal</label><input type="text" id="citePublisher" placeholder="Publisher or journal name">
+      <label>URL (optional)</label><input type="text" id="citeUrl" placeholder="https://...">
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('citationModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitCitation()">Insert Citation</button>
+    </div>
+  </div>
+</div>
+
+<!-- Word Count Modal -->
+<div class="modal-mask" id="wcModal">
+  <div class="modal">
+    <div class="modal-head">🔢 Word Count <button onclick="closeModal('wcModal')">×</button></div>
+    <div class="modal-body" id="wcBody" style="font-size:13px;line-height:2;"></div>
+    <div class="modal-foot"><button class="btn btn-primary" onclick="closeModal('wcModal')">Close</button></div>
+  </div>
+</div>
+
+<!-- Thesaurus Modal -->
+<div class="modal-mask" id="thesaurusModal">
+  <div class="modal">
+    <div class="modal-head">📖 Thesaurus <button onclick="closeModal('thesaurusModal')">×</button></div>
+    <div class="modal-body">
+      <label>Word</label><input type="text" id="thesaurusWord" placeholder="Enter a word..." oninput="lookupThesaurus()">
+      <div id="thesaurusResults" style="margin-top:8px;font-size:12px;"></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal('thesaurusModal')">Close</button></div>
+  </div>
+</div>
+
+<!-- Print Preview Modal -->
+<div class="modal-mask" id="printModal">
+  <div class="modal" style="width:700px;max-height:95vh;">
+    <div class="modal-head">🖨 Print Preview <button onclick="closeModal('printModal')">×</button></div>
+    <div class="print-preview-area" id="printPreviewArea"></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('printModal')">Close</button>
+      <button class="btn btn-primary" onclick="window.print()">🖨 Print</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reading Mode -->
+<div class="modal-mask" id="readingModal">
+  <div class="modal" style="width:700px;max-height:95vh;">
+    <div class="modal-head">📖 Reading Mode <button onclick="closeModal('readingModal')">×</button></div>
+    <div style="padding:40px 60px;overflow-y:auto;flex:1;font-family:Georgia,serif;font-size:13pt;line-height:1.9;color:#1a1a1a;background:#fffdf5;" id="readingContent"></div>
+    <div class="modal-foot"><button class="btn btn-primary" onclick="closeModal('readingModal')">Close</button></div>
+  </div>
+</div>
+
+<!-- Shape Picker -->
+<div class="modal-mask" id="shapeModal">
+  <div class="modal">
+    <div class="modal-head">🔷 Insert Shape <button onclick="closeModal('shapeModal')">×</button></div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">
+        <button class="btn btn-secondary" onclick="insertShape('rect')" style="font-size:22px;padding:8px;">▭</button>
+        <button class="btn btn-secondary" onclick="insertShape('circle')" style="font-size:22px;padding:8px;">⬤</button>
+        <button class="btn btn-secondary" onclick="insertShape('triangle')" style="font-size:22px;padding:8px;">▲</button>
+        <button class="btn btn-secondary" onclick="insertShape('diamond')" style="font-size:22px;padding:8px;">◆</button>
+        <button class="btn btn-secondary" onclick="insertShape('star')" style="font-size:22px;padding:8px;">⭐</button>
+        <button class="btn btn-secondary" onclick="insertShape('arrow')" style="font-size:22px;padding:8px;">➜</button>
+        <button class="btn btn-secondary" onclick="insertShape('cloud')" style="font-size:22px;padding:8px;">☁</button>
+        <button class="btn btn-secondary" onclick="insertShape('heart')" style="font-size:22px;padding:8px;">❤</button>
+      </div>
+      <label>Fill Color</label>
+      <input type="color" id="shapeFill" value="#dce6f7" style="width:100%;height:30px;margin-bottom:8px;">
+      <label>Outline Color</label>
+      <input type="color" id="shapeStroke" value="#2b579a" style="width:100%;height:30px;">
+    </div>
+    <div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal('shapeModal')">Cancel</button></div>
+  </div>
+</div>
+
+<!-- Table Context Menu -->
+<div class="table-ctx" id="tableCtx">
+  <button onclick="tableAction('addRowAfter')">+ Row Below</button>
+  <button onclick="tableAction('addRowBefore')">+ Row Above</button>
+  <button onclick="tableAction('addColAfter')">+ Col Right</button>
+  <button onclick="tableAction('addColBefore')">+ Col Left</button>
+  <button onclick="tableAction('delRow')" style="color:var(--danger)">– Row</button>
+  <button onclick="tableAction('delCol')" style="color:var(--danger)">– Col</button>
+  <button onclick="tableAction('mergeH')">Merge →</button>
+  <button onclick="tableAction('style')">Style</button>
+  <button onclick="closeTableCtx()">✕</button>
+</div>
+
 <!-- Slideshow Overlay -->
-<div class="slideshow-overlay" id="slideshowOverlay">
-  <div class="slideshow-slide" id="slideshowSlide"></div>
-  <div class="slideshow-controls">
+<div class="ss-overlay" id="ssOverlay">
+  <div class="ss-slide" id="ssSlide"></div>
+  <div class="ss-controls">
     <button onclick="prevSlide()">◀ Prev</button>
-    <span id="slideshowCounter" style="color:white;font-size:13px;align-self:center;"></span>
+    <span id="ssCounter" style="color:white;font-size:12px;align-self:center;"></span>
     <button onclick="nextSlide()">Next ▶</button>
     <button onclick="stopSlideshow()">✕ Exit</button>
   </div>
 </div>
 
-<!-- Floating Graph Panel -->
-<div id="floatingPanel">
-  <div id="floatingPanelHeader">
+<!-- Graph Panel -->
+<div id="graphPanel">
+  <div id="graphPanelHeader">
     📈 Graph Plotter
-    <button class="close-btn" onclick="closeGraphPanel()">✕</button>
+    <button onclick="closeGraphPanel()">✕</button>
   </div>
   <div class="graph-body">
-    <canvas id="graphCanvas" width="420" height="220"></canvas>
-    <div class="graph-controls">
-      <input type="text" id="functionInput" placeholder="e.g. x^2, sin(x), Math.cos(x)">
-      <button onclick="addFunction()">Plot</button>
-      <button onclick="insertGraphToEditor()">Insert</button>
-      <button onclick="clearAllFunctions()">Clear</button>
-      <button onclick="zoomGraphIn()">+ Zoom</button>
-      <button onclick="zoomGraphOut()">- Zoom</button>
+    <canvas id="graphCanvas" width="440" height="230"></canvas>
+    <div class="graph-ctrl">
+      <input type="text" id="funcInput" placeholder="e.g. x^2, sin(x), Math.cos(x)">
+      <button onclick="addGraphFn()">Plot</button>
+      <button onclick="insertGraphToDoc()">Insert</button>
+      <button onclick="clearGraph()">Clear</button>
+      <button onclick="graphZoomIn()">+</button>
+      <button onclick="graphZoomOut()">−</button>
     </div>
   </div>
 </div>
 
 <script>
-// ── State ──
-const INDEX_KEY = "doc.index";
-let docId = new URLSearchParams(window.location.search).get('id') || null;
-let pages = [], currentPage = 0;
-let selectedImage = null;
-let versions = [];
-let designSettings = [];
-let currentZoom = 1;
-let selectedVersionIndex = -1;
-let slideshowInterval = null;
-let slideshowIndex = 0;
+// ═══════════ STATE ═══════════
+const INDEX_KEY = 'doc.index';
+let docId = new URLSearchParams(location.search).get('id');
+let pages = [], currentPage = 0, versions = [], designSettings = [];
+let currentZoom = 1, selectedImage = null;
+let trackChanges = false, autoSaveTimer = null;
+let comments = [], footnotes = [], citations = [], bookmarks = [];
+let tableCellTarget = null;
+let graphFns = [], graphScale = 42;
+let ssInterval = null, ssIndex = 0;
+const graphColors = ['#2b579a','#c0392b','#27ae60','#e67e22','#8e44ad','#16a085'];
 
-// ── Status ──
+// ═══════════ STATUS ═══════════
 function setStatus(msg) {
   document.getElementById('statusText').textContent = msg;
-  setTimeout(() => document.getElementById('statusText').textContent = 'Ready', 3000);
+  clearTimeout(window._stTimer);
+  window._stTimer = setTimeout(() => document.getElementById('statusText').textContent = 'Ready', 3000);
 }
 
-// ── Tabs ──
+// ═══════════ TABS ═══════════
 function switchTab(tab) {
   document.querySelectorAll('.ribbon-toolbar').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  const tb = document.getElementById(tab);
-  if (tb) tb.classList.add('active');
-  const btn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
-  if (btn) btn.classList.add('active');
+  const tb = document.getElementById(tab); if (tb) tb.classList.add('active');
+  const bn = document.querySelector(`.tab-btn[data-tab="${tab}"]`); if (bn) bn.classList.add('active');
 }
 
-// ── Find / Replace ──
-function toggleFindBar() {
-  const bar = document.getElementById('findBar');
-  bar.classList.toggle('open');
-  if (bar.classList.contains('open')) document.getElementById('findInput').focus();
+// ═══════════ CLIPBOARD ═══════════
+function doCopy() { document.execCommand('copy'); setStatus('Copied.'); }
+function doCut() { document.execCommand('cut'); setStatus('Cut.'); }
+function doPaste() { document.execCommand('paste'); }
+function selectAll() { document.execCommand('selectAll'); }
+
+// ═══════════ FORMAT ═══════════
+function fmt(cmd, val = null) { document.execCommand(cmd, false, val); updateFormatState(); }
+function toggleFormat(cmd, btnId) {
+  document.execCommand(cmd, false, null);
+  updateFormatState();
 }
-function findText() {
-  const q = document.getElementById('findInput').value;
-  if (!q) return;
-  window.find(q);
-}
-function replaceText() {
-  const q = document.getElementById('findInput').value;
-  const r = document.getElementById('replaceInput').value;
-  if (!q) return;
-  const sel = window.getSelection();
-  if (sel && sel.toString() === q) {
-    document.execCommand('insertText', false, r);
-  } else {
-    window.find(q);
-  }
-}
-function replaceAllText() {
-  const q = document.getElementById('findInput').value;
-  const r = document.getElementById('replaceInput').value;
-  if (!q) return;
-  pages.forEach(p => {
-    p.innerHTML = p.innerHTML.split(q).join(r);
+function updateFormatState() {
+  ['bold','italic','underline'].forEach(cmd => {
+    const btn = document.getElementById('btn' + cmd.charAt(0).toUpperCase() + cmd.slice(1));
+    if (btn) btn.classList.toggle('active-btn', document.queryCommandState(cmd));
   });
-  setStatus('Replaced all instances.');
+}
+function applyFont(font) { document.execCommand('fontName', false, font); }
+function applyFontSize(size) {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  const span = document.createElement('span');
+  span.style.fontSize = size + 'pt';
+  try { sel.getRangeAt(0).surroundContents(span); } catch(e) {}
+}
+function changeFontSize(delta) {
+  const input = document.getElementById('fontSize');
+  const newSize = Math.max(6, Math.min(96, parseInt(input.value) + delta));
+  input.value = newSize;
+  applyFontSize(newSize);
+}
+function applyLineSpacing(v) { pages[currentPage].style.lineHeight = v; }
+function highlightText() { fmt('backColor', document.getElementById('hlColor').value); }
+function applyParaBorder() {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  const node = sel.getRangeAt(0).commonAncestorContainer;
+  const para = node.nodeType === 3 ? node.parentElement : node;
+  const p = para.closest('p,div,h1,h2,h3,h4') || para;
+  p.style.border = p.style.border ? '' : '1px solid #999';
+  p.style.padding = p.style.border ? '4px 8px' : '';
+}
+function applyParaShading() {
+  const color = prompt('Paragraph shading color (hex):', '#f0f4ff');
+  if (!color) return;
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  const node = sel.getRangeAt(0).commonAncestorContainer;
+  const para = (node.nodeType === 3 ? node.parentElement : node).closest('p,div,h1,h2,h3,h4') || node;
+  para.style.backgroundColor = color;
+  para.style.padding = '4px 8px';
 }
 
-// ── Load / Save ──
+// ═══════════ FIND / REPLACE ═══════════
+function toggleFindBar() {
+  const b = document.getElementById('findBar');
+  b.classList.toggle('open');
+  if (b.classList.contains('open')) document.getElementById('findInput').focus();
+}
+function findNext() { window.find(document.getElementById('findInput').value); }
+function findPrev() { window.find(document.getElementById('findInput').value, false, true); }
+function openReplaceModal() { openModal('replaceModal'); }
+function doReplace() {
+  const q = document.getElementById('rmFind').value;
+  const r = document.getElementById('rmReplace').value;
+  const sel = window.getSelection();
+  if (sel && sel.toString() === q) document.execCommand('insertText', false, r);
+  else window.find(q);
+}
+function doReplaceAll() {
+  const q = document.getElementById('rmFind').value, r = document.getElementById('rmReplace').value;
+  if (!q) return;
+  let count = 0;
+  pages.forEach(p => {
+    const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g');
+    const matches = (p.innerHTML.match(re) || []).length;
+    count += matches;
+    p.innerHTML = p.innerHTML.replace(re, r);
+  });
+  setStatus(`Replaced ${count} occurrence(s).`);
+  closeModal('replaceModal');
+}
+
+// ═══════════ LOAD / SAVE ═══════════
 function loadDocument() {
   if (!docId) return addPage();
-  const idx = JSON.parse(localStorage.getItem(INDEX_KEY) || '{"docs":{},"folders":{}}');
-  const doc = idx.docs[docId];
+  const idx = JSON.parse(localStorage.getItem(INDEX_KEY) || '{"docs":{}}');
+  const doc = idx.docs && idx.docs[docId];
   if (doc) document.getElementById('docTitleDisplay').textContent = '— ' + doc.title;
   const data = JSON.parse(localStorage.getItem(`doc.data.${docId}`) || '{}');
-  if (data.pages && data.pages.length > 0) {
-    data.pages.forEach(p => addPage(p));
-  } else {
-    addPage();
-  }
+  if (data.pages && data.pages.length) { data.pages.forEach(p => addPage(p)); }
+  else addPage();
   versions = data.versions || [];
   designSettings = data.design || [];
-  designSettings.forEach((style, i) => {
-    if (pages[i]) {
-      Object.assign(pages[i].style, style);
-    }
-  });
+  comments = data.comments || [];
+  footnotes = data.footnotes || [];
+  citations = data.citations || [];
+  designSettings.forEach((s, i) => { if (pages[i]) Object.assign(pages[i].style, s); });
   updateVersionPanel();
+  updateCommentsPanel();
   updateWordCount();
 }
-
 function saveDocument() {
-  if (!docId) return alert("No document ID.");
+  if (!docId) { setStatus('No document ID.'); return; }
   designSettings = pages.map(p => ({
-    background: p.style.background || '',
-    backgroundImage: p.style.backgroundImage || '',
-    backgroundSize: p.style.backgroundSize || '',
-    color: p.style.color || '',
-    fontFamily: p.style.fontFamily || '',
-    padding: p.style.padding || ''
+    background: p.style.background || '', backgroundImage: p.style.backgroundImage || '',
+    backgroundSize: p.style.backgroundSize || '', color: p.style.color || '',
+    fontFamily: p.style.fontFamily || '', padding: p.style.padding || '',
+    width: p.style.width || '', minHeight: p.style.minHeight || ''
   }));
-  const payload = { pages: pages.map(p => p.innerHTML), versions, design: designSettings };
-  localStorage.setItem(`doc.data.${docId}`, JSON.stringify(payload));
-
-  // Update index updatedAt
-  const idx = JSON.parse(localStorage.getItem(INDEX_KEY) || '{"docs":{},"folders":{}}');
-  if (idx.docs[docId]) {
-    idx.docs[docId].updatedAt = new Date().toISOString();
-    localStorage.setItem(INDEX_KEY, JSON.stringify(idx));
-  }
-  setStatus('Document saved.');
+  localStorage.setItem(`doc.data.${docId}`, JSON.stringify({
+    pages: pages.map(p => p.innerHTML), versions, design: designSettings,
+    comments, footnotes, citations
+  }));
+  const idx = JSON.parse(localStorage.getItem(INDEX_KEY) || '{"docs":{}}');
+  if (idx.docs && idx.docs[docId]) { idx.docs[docId].updatedAt = new Date().toISOString(); localStorage.setItem(INDEX_KEY, JSON.stringify(idx)); }
+  setStatus('Saved.');
+  showAutoSave();
+}
+function showAutoSave() {
+  const el = document.getElementById('autoSaveIndicator');
+  el.textContent = '✓ Saved';
+  setTimeout(() => el.textContent = '', 3000);
+}
+function startAutoSave() {
+  clearInterval(autoSaveTimer);
+  autoSaveTimer = setInterval(() => { if (docId) saveDocument(); }, 30000);
 }
 
-// ── Pages ──
+// ═══════════ PAGES ═══════════
 function addPage(html = '') {
   const page = document.createElement('div');
   page.className = 'page';
   page.contentEditable = 'true';
-  page.setAttribute('data-page-num', pages.length + 1);
+  page.setAttribute('data-page-num', 'Page ' + (pages.length + 1));
   page.innerHTML = html || '<p>Start typing here...</p>';
-  page.addEventListener('input', updateWordCount);
-  page.addEventListener('keydown', e => {
-    if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveDocument(); }
-    if (e.ctrlKey && e.key === 'z') { e.preventDefault(); formatText('undo'); }
-    if (e.ctrlKey && e.key === 'y') { e.preventDefault(); formatText('redo'); }
-    if (e.ctrlKey && e.key === 'f') { e.preventDefault(); toggleFindBar(); }
-  });
+  page.addEventListener('input', () => { updateWordCount(); scheduleAutoSave(); });
+  page.addEventListener('keydown', handleKeyDown);
+  page.addEventListener('mouseup', updateFormatState);
+  page.addEventListener('contextmenu', handleContextMenu);
   document.getElementById('contentArea').appendChild(page);
   pages.push(page);
-  updateThumbnails();
-  switchPage(pages.length - 1);
-  updatePageInfo();
+  updateThumbnails(); switchPage(pages.length - 1); updatePageInfo();
 }
-
 function deletePage() {
-  if (pages.length <= 1) return setStatus('Cannot delete the only page.');
+  if (pages.length <= 1) { setStatus('Cannot delete the only page.'); return; }
   if (!confirm('Delete this page?')) return;
-  pages[currentPage].remove();
-  pages.splice(currentPage, 1);
+  pages[currentPage].remove(); pages.splice(currentPage, 1);
   currentPage = Math.max(0, currentPage - 1);
-  pages.forEach((p, i) => p.setAttribute('data-page-num', i + 1));
-  updateThumbnails();
-  switchPage(currentPage);
+  pages.forEach((p, i) => p.setAttribute('data-page-num', 'Page ' + (i + 1)));
+  updateThumbnails(); switchPage(currentPage); updatePageInfo();
+}
+function duplicatePage() {
+  const html = pages[currentPage].innerHTML;
+  addPage(html);
+  setStatus('Page duplicated.');
+}
+function switchPage(idx) {
+  currentPage = idx;
+  pages.forEach((p, i) => p.style.display = i === idx ? 'block' : 'none');
+  document.querySelectorAll('.page-thumb').forEach((t, i) => t.classList.toggle('active', i === idx));
+  pages[idx].focus();
   updatePageInfo();
 }
-
-function switchPage(index) {
-  currentPage = index;
-  pages.forEach((p, i) => p.style.display = (i === index) ? 'block' : 'none');
-  document.querySelectorAll('.page-thumb').forEach((t, i) => t.classList.toggle('active', i === index));
-  pages[index].focus();
-  updatePageInfo();
-}
-
 function updateThumbnails() {
-  const container = document.getElementById('thumbnails');
-  container.innerHTML = '';
+  const c = document.getElementById('thumbnails'); c.innerHTML = '';
   pages.forEach((p, i) => {
-    const thumb = document.createElement('div');
-    thumb.className = 'page-thumb' + (i === currentPage ? ' active' : '');
-    thumb.innerHTML = `
-      <div class="page-thumb-preview">
-        <div class="page-thumb-line" style="width:80%"></div>
-        <div class="page-thumb-line" style="width:60%"></div>
-        <div class="page-thumb-line" style="width:90%"></div>
-        <div class="page-thumb-line" style="width:45%"></div>
-      </div>
-      <div class="page-thumb-label">Page ${i + 1}</div>`;
-    thumb.onclick = () => switchPage(i);
-    container.appendChild(thumb);
+    const t = document.createElement('div');
+    t.className = 'page-thumb' + (i === currentPage ? ' active' : '');
+    t.innerHTML = `<div class="pt-preview">${p.innerHTML.slice(0,200)}</div><div class="pt-label">Page ${i+1}</div>`;
+    t.style.cssText = 'overflow:hidden;';
+    t.onclick = () => switchPage(i);
+    c.appendChild(t);
   });
 }
-
-function updatePageInfo() {
-  document.getElementById('pageInfo').textContent = `Page ${currentPage + 1} of ${pages.length}`;
+function updatePageInfo() { document.getElementById('pageInfo').textContent = `Page ${currentPage + 1} of ${pages.length}`; }
+function scheduleAutoSave() {
+  clearTimeout(window._asSave);
+  window._asSave = setTimeout(() => saveDocument(), 5000);
+}
+function insertPageBreak() {
+  fmt('insertHTML', '<hr style="page-break-after:always;border:none;border-top:2px dashed #ccc;margin:16px 0;" data-pagebreak>');
 }
 
-function updateWordCount() {
-  const text = pages.map(p => p.innerText || '').join(' ');
-  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-  document.getElementById('wordCount').textContent = `Words: ${words}`;
-}
-
-// ── Formatting ──
-function formatText(cmd, value = null) {
-  document.execCommand(cmd, false, value);
-}
-function applyFont(font) {
-  document.execCommand('fontName', false, font);
-}
-function applyFontSize(size) {
-  // Use px-based span approach
-  const sel = window.getSelection();
-  if (!sel.rangeCount) return;
-  const range = sel.getRangeAt(0);
-  const span = document.createElement('span');
-  span.style.fontSize = size + 'pt';
-  try {
-    range.surroundContents(span);
-  } catch(e) {
-    document.execCommand('fontSize', false, 4);
+// ═══════════ KEY SHORTCUTS ═══════════
+function handleKeyDown(e) {
+  if (e.ctrlKey || e.metaKey) {
+    switch(e.key.toLowerCase()) {
+      case 's': e.preventDefault(); saveDocument(); break;
+      case 'z': e.preventDefault(); fmt('undo'); break;
+      case 'y': e.preventDefault(); fmt('redo'); break;
+      case 'f': e.preventDefault(); toggleFindBar(); break;
+      case 'b': e.preventDefault(); toggleFormat('bold','btnBold'); break;
+      case 'i': e.preventDefault(); toggleFormat('italic','btnItalic'); break;
+      case 'u': e.preventDefault(); toggleFormat('underline','btnUnderline'); break;
+      case 'h': e.preventDefault(); openReplaceModal(); break;
+      case 'p': e.preventDefault(); openPrintPreview(); break;
+    }
   }
+  if (e.key === 'Escape') { toggleFindBar(); closeTableCtx(); }
 }
-function applyLineSpacing(val) {
-  pages[currentPage].style.lineHeight = val;
-}
-function highlightText() {
-  const color = document.getElementById("highlightColorPicker").value;
-  document.execCommand("backColor", false, color);
-}
-function clearFormatting() {
-  document.execCommand("removeFormat", false, null);
-}
-function insertHR() {
-  document.execCommand('insertHTML', false, '<hr style="border:1px solid #ccc;margin:12px 0;">');
-}
-function insertLink() {
-  const url = document.getElementById('linkUrl').value.trim();
-  if (!url) return alert('Enter a URL first.');
-  const text = window.getSelection().toString() || url;
-  document.execCommand('insertHTML', false, `<a href="${url}" target="_blank">${text}</a>`);
+document.addEventListener('keydown', e => {
+  if (document.getElementById('ssOverlay').classList.contains('active')) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextSlide();
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevSlide();
+    else if (e.key === 'Escape') stopSlideshow();
+  }
+});
+
+// ═══════════ CONTEXT MENU ═══════════
+function handleContextMenu(e) {
+  const cell = e.target.closest('td,th');
+  if (cell) { e.preventDefault(); showTableCtx(e.clientX, e.clientY, cell); }
 }
 
-// ── Table ──
+// ═══════════ TABLE ═══════════
 function insertTable() {
-  const rows = parseInt(prompt("Number of rows:", "3")) || 3;
-  const cols = parseInt(prompt("Number of columns:", "3")) || 3;
-  let html = '<table style="border-collapse:collapse;width:100%;margin:8px 0;">';
+  const rows = parseInt(prompt('Rows:', '3')) || 3;
+  const cols = parseInt(prompt('Columns:', '3')) || 3;
+  let html = '<table style="border-collapse:collapse;width:100%;margin:10px 0;">';
   for (let r = 0; r < rows; r++) {
     html += '<tr>';
     for (let c = 0; c < cols; c++) {
-      if (r === 0) {
-        html += `<th style="border:1px solid #999;padding:6px 10px;background:#f0f4ff;font-weight:600;text-align:left;">Header ${c + 1}</th>`;
-      } else {
-        html += `<td style="border:1px solid #999;padding:6px 10px;" contenteditable="true">&nbsp;</td>`;
-      }
+      if (r === 0) html += `<th style="border:1px solid #aaa;padding:6px 10px;background:#e8f0ff;font-weight:600;text-align:left;">Header ${c+1}</th>`;
+      else html += `<td style="border:1px solid #aaa;padding:6px 10px;">&nbsp;</td>`;
     }
     html += '</tr>';
   }
   html += '</table>';
-  document.execCommand('insertHTML', false, html);
+  fmt('insertHTML', html);
+}
+function showTableCtx(x, y, cell) {
+  tableCellTarget = cell;
+  const ctx = document.getElementById('tableCtx');
+  ctx.style.left = x + 'px'; ctx.style.top = y + 'px';
+  ctx.classList.add('show');
+}
+function closeTableCtx() { document.getElementById('tableCtx').classList.remove('show'); tableCellTarget = null; }
+function tableAction(action) {
+  if (!tableCellTarget) return; closeTableCtx();
+  const table = tableCellTarget.closest('table');
+  const row = tableCellTarget.parentElement;
+  const ri = row.rowIndex, ci = tableCellTarget.cellIndex;
+  function newCell(isHeader) {
+    const c = document.createElement(isHeader ? 'th' : 'td');
+    c.style.cssText = 'border:1px solid #aaa;padding:6px 10px;';
+    c.innerHTML = '&nbsp;'; return c;
+  }
+  switch(action) {
+    case 'addRowAfter': case 'addRowBefore': {
+      const idx = action === 'addRowAfter' ? ri + 1 : ri;
+      const newRow = table.insertRow(idx);
+      for (let c = 0; c < row.cells.length; c++) newRow.appendChild(newCell(false));
+      break;
+    }
+    case 'addColAfter': case 'addColBefore': {
+      const idx = action === 'addColAfter' ? ci + 1 : ci;
+      for (let r = 0; r < table.rows.length; r++) {
+        const cell = newCell(table.rows[r].cells[0].tagName === 'TH');
+        table.rows[r].insertBefore(cell, table.rows[r].cells[idx] || null);
+      }
+      break;
+    }
+    case 'delRow': if (table.rows.length > 1) table.deleteRow(ri); break;
+    case 'delCol': if (row.cells.length > 1) for (let r = 0; r < table.rows.length; r++) if (table.rows[r].cells[ci]) table.rows[r].deleteCell(ci); break;
+    case 'mergeH': {
+      if (!tableCellTarget.nextElementSibling) break;
+      tableCellTarget.innerHTML += ' ' + tableCellTarget.nextElementSibling.innerHTML;
+      tableCellTarget.colSpan = (tableCellTarget.colSpan || 1) + 1;
+      tableCellTarget.nextElementSibling.remove();
+      break;
+    }
+    case 'style': {
+      const color = prompt('Header background color:', '#e8f0ff');
+      if (color) for (let c = 0; c < table.rows[0].cells.length; c++) table.rows[0].cells[c].style.background = color;
+      break;
+    }
+  }
 }
 
-// ── Image ──
+// ═══════════ IMAGE ═══════════
 function insertImage() {
   const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'image/*';
+  input.type = 'file'; input.accept = 'image/*';
   input.onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
+    const file = e.target.files[0]; if (!file) return;
+    const r = new FileReader();
+    r.onload = ev => {
       const img = document.createElement('img');
       img.src = ev.target.result;
       img.className = 'draggable';
-      img.style.cssText = 'top:20px;left:20px;width:220px;height:auto;';
+      img.style.cssText = 'top:20px;left:20px;width:220px;height:auto;border-radius:3px;';
+      img.onclick = () => { selectedImage = img; setStatus('Image selected. Use View > Del Image to remove.'); };
       pages[currentPage].appendChild(img);
       selectedImage = img;
-      makeDraggableResizable(img);
-      setStatus('Image inserted. Drag to reposition.');
+      makeDraggable(img);
+      setStatus('Image inserted. Drag to reposition, drag edges to resize.');
     };
-    reader.readAsDataURL(file);
+    r.readAsDataURL(file);
   };
   input.click();
 }
-function deleteSelectedImage() {
-  if (selectedImage && selectedImage.parentNode) {
-    selectedImage.parentNode.removeChild(selectedImage);
-    selectedImage = null;
-    setStatus('Image deleted.');
-  }
-}
-function makeDraggableResizable(el) {
+function makeDraggable(el) {
   interact(el).draggable({
     modifiers: [interact.modifiers.restrictRect({ restriction: 'parent' })],
-    listeners: { move: dragMoveListener }
+    listeners: { move(e) { const t = e.target; const x = (parseFloat(t.dataset.x)||0)+e.dx; const y = (parseFloat(t.dataset.y)||0)+e.dy; t.style.transform = `translate(${x}px,${y}px)`; t.dataset.x = x; t.dataset.y = y; } }
   }).resizable({
-    edges: { left: true, right: true, bottom: true, top: true },
-    listeners: { move: resizeMoveListener }
+    edges: { right: true, bottom: true, left: true, top: true },
+    listeners: { move(e) { const t = e.target; t.style.width = e.rect.width+'px'; t.style.height = e.rect.height+'px'; const x = (parseFloat(t.dataset.x)||0)+e.deltaRect.left; const y = (parseFloat(t.dataset.y)||0)+e.deltaRect.top; t.style.transform = `translate(${x}px,${y}px)`; t.dataset.x = x; t.dataset.y = y; } }
   }).on('click', () => selectedImage = el);
 }
-function dragMoveListener(event) {
-  const t = event.target;
-  const x = (parseFloat(t.getAttribute('data-x')) || 0) + event.dx;
-  const y = (parseFloat(t.getAttribute('data-y')) || 0) + event.dy;
-  t.style.transform = `translate(${x}px,${y}px)`;
-  t.setAttribute('data-x', x); t.setAttribute('data-y', y);
-}
-function resizeMoveListener(event) {
-  const t = event.target;
-  t.style.width = event.rect.width + 'px';
-  t.style.height = event.rect.height + 'px';
-  const x = (parseFloat(t.getAttribute('data-x')) || 0) + event.deltaRect.left;
-  const y = (parseFloat(t.getAttribute('data-y')) || 0) + event.deltaRect.top;
-  t.style.transform = `translate(${x}px,${y}px)`;
-  t.setAttribute('data-x', x); t.setAttribute('data-y', y);
+
+// ═══════════ TEXT BOX ═══════════
+function insertTextBox() {
+  const tb = document.createElement('div');
+  tb.className = 'text-box';
+  tb.contentEditable = 'true';
+  tb.innerHTML = 'Text box content...';
+  tb.style.cssText = 'position:absolute;top:60px;left:60px;width:200px;min-height:60px;border:2px solid #2b579a;padding:10px;background:white;border-radius:3px;z-index:10;';
+  pages[currentPage].appendChild(tb);
+  interact(tb).draggable({ listeners: { move(e) { const t = e.target; const x = (parseFloat(t.dataset.x)||0)+e.dx; const y = (parseFloat(t.dataset.y)||0)+e.dy; t.style.transform = `translate(${x}px,${y}px)`; t.dataset.x = x; t.dataset.y = y; } } }).resizable({ edges: { right:true,bottom:true }, listeners: { move(e) { e.target.style.width = e.rect.width+'px'; e.target.style.minHeight = e.rect.height+'px'; } } });
+  setStatus('Text box inserted. Drag to move, edit directly.');
 }
 
-// ── Zoom ──
-function zoomPage(factor) {
-  currentZoom = Math.max(0.4, Math.min(2, currentZoom * factor));
-  document.getElementById('contentArea').style.zoom = currentZoom;
-  document.getElementById('zoomLabel').textContent = Math.round(currentZoom * 100) + '%';
+// ═══════════ SHAPES ═══════════
+function openShapePicker() { openModal('shapeModal'); }
+function insertShape(type) {
+  const fill = document.getElementById('shapeFill').value;
+  const stroke = document.getElementById('shapeStroke').value;
+  const shapes = {
+    rect: `<div style="width:120px;height:80px;background:${fill};border:2px solid ${stroke};border-radius:4px;display:inline-block;margin:8px;"></div>`,
+    circle: `<div style="width:100px;height:100px;background:${fill};border:2px solid ${stroke};border-radius:50%;display:inline-block;margin:8px;"></div>`,
+    triangle: `<div style="width:0;height:0;border-left:60px solid transparent;border-right:60px solid transparent;border-bottom:100px solid ${fill};display:inline-block;margin:8px;"></div>`,
+    diamond: `<div style="width:80px;height:80px;background:${fill};border:2px solid ${stroke};transform:rotate(45deg);display:inline-block;margin:24px;"></div>`,
+    star: `<span style="font-size:64px;color:${fill};text-shadow:0 0 0 2px ${stroke};display:inline-block;margin:8px;">⭐</span>`,
+    arrow: `<span style="font-size:64px;color:${fill};display:inline-block;margin:8px;">➜</span>`,
+    cloud: `<span style="font-size:64px;color:${fill};display:inline-block;margin:8px;">☁</span>`,
+    heart: `<span style="font-size:64px;color:${fill};display:inline-block;margin:8px;">❤</span>`
+  };
+  fmt('insertHTML', shapes[type] || '');
+  closeModal('shapeModal');
+  setStatus('Shape inserted.');
 }
-function resetZoom() { currentZoom = 1; document.getElementById('contentArea').style.zoom = 1; document.getElementById('zoomLabel').textContent = '100%'; }
 
-// ── Toggle panels ──
+// ═══════════ CALLOUT / QUOTE / CODE ═══════════
+function openCalloutModal() { openModal('calloutModal'); }
+function submitCallout() {
+  const type = document.getElementById('calloutType').value;
+  const text = document.getElementById('calloutContent').value;
+  fmt('insertHTML', `<div class="callout ${type}" contenteditable="true">${text}</div>`);
+  closeModal('calloutModal');
+}
+function insertBlockquote() { fmt('formatBlock', 'blockquote'); }
+function insertCodeBlock() { fmt('insertHTML', '<pre style="background:#1e1e2e;color:#e0e0e0;padding:14px 16px;border-radius:5px;font-family:Courier New,monospace;font-size:10pt;overflow-x:auto;margin:10px 0;white-space:pre-wrap;" contenteditable="true">// Code here\n</pre>'); }
+function insertHR() { fmt('insertHTML', '<hr style="border:none;border-top:2px solid #ccc;margin:14px 0;">'); }
+
+// ═══════════ INSERT TEXT ═══════════
+function insertDate() {
+  const d = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  fmt('insertText', d);
+}
+function insertSpecialChar() {
+  const chars = '© ® ™ § ¶ † ‡ • … ‹ › « » " " ' ' – — ° ¡ ¿ æ ø å ñ ü ö ä'.split(' ');
+  const char = prompt('Special characters:\n' + chars.join('  ') + '\n\nType one to insert:');
+  if (char) fmt('insertText', char);
+}
+function insertLink() {
+  const url = document.getElementById('linkUrl').value.trim();
+  if (!url) return alert('Enter a URL.');
+  const sel = window.getSelection();
+  const text = sel && sel.toString() ? sel.toString() : url;
+  fmt('insertHTML', `<a href="${url}" target="_blank" style="color:#2b579a;">${text}</a>`);
+  document.getElementById('linkUrl').value = '';
+}
+function insertLatex() {
+  const code = document.getElementById('latexInput').value.trim();
+  if (!code) return;
+  const span = document.createElement('span');
+  span.innerHTML = `\\(${code}\\)\u00a0`;
+  insertNode(span);
+  MathJax.typesetPromise();
+  document.getElementById('latexInput').value = '';
+}
+function insertMathSymbol() {
+  const dd = document.getElementById('mathDropdown');
+  const s = dd.value; if (!s) return;
+  fmt('insertText', s);
+  dd.selectedIndex = 0;
+}
+function insertNode(node) {
+  const sel = window.getSelection(); if (!sel.rangeCount) return;
+  const r = sel.getRangeAt(0); r.deleteContents(); r.insertNode(node);
+  r.setStartAfter(node); r.collapse(true); sel.removeAllRanges(); sel.addRange(r);
+}
+
+// ═══════════ LAYOUT ═══════════
+function setMargins(type) {
+  const m = { normal: '96px', narrow: '48px', wide: '144px' };
+  pages.forEach(p => p.style.padding = `${m[type]} ${m[type]} 80px`);
+  setStatus(`Margins set to ${type}.`);
+}
+function setOrientation(o) {
+  if (o === 'landscape') { pages.forEach(p => { p.style.width = '1056px'; p.style.minHeight = '816px'; }); }
+  else { pages.forEach(p => { p.style.width = '816px'; p.style.minHeight = '1056px'; }); }
+  setStatus(`Orientation: ${o}.`);
+}
+function setPageSize(size) {
+  const sizes = { letter: ['816px','1056px'], a4: ['794px','1123px'], legal: ['816px','1344px'] };
+  const [w, h] = sizes[size] || sizes.letter;
+  pages.forEach(p => { p.style.width = w; p.style.minHeight = h; });
+  setStatus(`Paper size: ${size}.`);
+}
+function setColumns(n) {
+  const page = pages[currentPage];
+  page.style.columnCount = n > 1 ? n : '';
+  page.style.columnGap = n > 1 ? '40px' : '';
+  setStatus(`${n} column(s).`);
+}
+function applyParaSpacing() {
+  const before = document.getElementById('spaceBefore').value;
+  const after = document.getElementById('spaceAfter').value;
+  const il = document.getElementById('indentLeft').value;
+  const ir = document.getElementById('indentRight').value;
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  const node = sel.getRangeAt(0).commonAncestorContainer;
+  const el = (node.nodeType === 3 ? node.parentElement : node).closest('p,div,li,h1,h2,h3,h4') || node;
+  el.style.marginTop = before + 'px'; el.style.marginBottom = after + 'px';
+  el.style.marginLeft = il + 'px'; el.style.marginRight = ir + 'px';
+}
+
+// ═══════════ REFERENCES ═══════════
+function insertTOC() {
+  const page = pages[currentPage];
+  const headings = page.querySelectorAll('h1,h2,h3');
+  let items = '';
+  headings.forEach((h, i) => {
+    const level = h.tagName.toLowerCase();
+    const id = 'toc-anchor-' + i;
+    h.id = id;
+    items += `<div class="toc-item ${level}"><a href="#${id}" style="color:var(--accent);text-decoration:none;">${'&nbsp;'.repeat(level==='h1'?0:level==='h2'?4:8)}${h.innerText}</a></div>`;
+  });
+  fmt('insertHTML', `<div class="toc"><div class="toc-title">Table of Contents</div>${items || '<div style="color:#999;font-size:11pt;">No headings found. Add headings and update TOC.</div>'}</div>`);
+}
+function updateTOC() { insertTOC(); setStatus('Table of Contents updated.'); }
+
+let footnoteCount = 0;
+function insertFootnote() {
+  const text = prompt('Footnote text:');
+  if (!text) return;
+  footnoteCount++;
+  const n = footnoteCount;
+  fmt('insertHTML', `<sup class="footnote-ref" title="Footnote ${n}: ${text}" onclick="scrollToFootnotes()">[${n}]</sup>`);
+  // Add to footnotes section
+  const page = pages[currentPage];
+  let fnSection = page.querySelector('.footnotes');
+  if (!fnSection) {
+    fnSection = document.createElement('div');
+    fnSection.className = 'footnotes';
+    page.appendChild(fnSection);
+  }
+  fnSection.innerHTML += `<div>[${n}] ${text}</div>`;
+}
+function insertEndnote() {
+  const text = prompt('Endnote text:');
+  if (!text) return;
+  footnoteCount++;
+  fmt('insertHTML', `<sup class="footnote-ref" title="Endnote: ${text}">*</sup>`);
+  const lastPage = pages[pages.length - 1];
+  let enSection = lastPage.querySelector('.endnotes');
+  if (!enSection) { enSection = document.createElement('div'); enSection.className = 'footnotes'; enSection.innerHTML = '<div style="font-weight:700;margin-bottom:4px;">Endnotes</div>'; lastPage.appendChild(enSection); }
+  enSection.innerHTML += `<div>* ${text}</div>`;
+}
+function openCitationModal() { openModal('citationModal'); }
+function submitCitation() {
+  const style = document.getElementById('citeStyle').value;
+  const author = document.getElementById('citeAuthor').value;
+  const title = document.getElementById('citeTitle').value;
+  const year = document.getElementById('citeYear').value;
+  const pub = document.getElementById('citePublisher').value;
+  let cite = '';
+  if (style === 'apa') cite = `${author} (${year}). <em>${title}</em>. ${pub}.`;
+  else if (style === 'mla') cite = `${author}. "${title}." <em>${pub}</em>, ${year}.`;
+  else if (style === 'chicago') cite = `${author}. <em>${title}</em>. ${pub}, ${year}.`;
+  else cite = `${author} (${year}) <em>${title}</em>. ${pub}.`;
+  citations.push({ style, author, title, year, pub });
+  fmt('insertHTML', `<span style="color:var(--accent);cursor:pointer;" title="Citation">(${author.split(',')[0]}, ${year})</span>`);
+  closeModal('citationModal');
+  setStatus('Citation inserted.');
+}
+function insertBibliography() {
+  if (!citations.length) { setStatus('No citations added yet.'); return; }
+  let html = '<div style="margin-top:20px;"><h3>References</h3>';
+  citations.forEach(c => {
+    if (c.style === 'apa') html += `<p style="margin:4px 0;padding-left:30px;text-indent:-30px;">${c.author} (${c.year}). <em>${c.title}</em>. ${c.pub}.</p>`;
+    else html += `<p style="margin:4px 0;padding-left:30px;text-indent:-30px;">${c.author}. <em>${c.title}</em>. ${c.pub}, ${c.year}.</p>`;
+  });
+  html += '</div>';
+  fmt('insertHTML', html);
+}
+function insertCaption() {
+  const text = prompt('Caption text:', 'Figure 1: Description');
+  if (text) fmt('insertHTML', `<p style="font-style:italic;font-size:10pt;color:#555;text-align:center;margin:4px 0;">${text}</p>`);
+}
+function insertCrossRef() {
+  const ref = prompt('Cross-reference target (heading text):');
+  if (ref) fmt('insertHTML', `<span style="color:var(--accent);text-decoration:underline;cursor:pointer;" title="Cross-reference to: ${ref}">${ref}</span>`);
+}
+function insertBookmark() {
+  const name = prompt('Bookmark name:');
+  if (!name) return;
+  const id = 'bm-' + name.replace(/\s+/g,'-').toLowerCase();
+  fmt('insertHTML', `<span id="${id}" style="color:var(--accent);font-size:9pt;" title="Bookmark: ${name}">🔖</span>`);
+  bookmarks.push({ name, id });
+  setStatus(`Bookmark "${name}" inserted.`);
+}
+function insertIndexEntry() {
+  const term = prompt('Index entry term:');
+  if (term) { fmt('insertHTML', `<span style="display:none;" data-index="${term}"></span>`); setStatus(`Index entry added: "${term}"`); }
+}
+
+// ═══════════ REVIEW ═══════════
+function runSpellCheck() {
+  setStatus('Spell check running...');
+  // Basic common misspellings simulation
+  const misspellings = { 'teh': 'the', 'recieve': 'receive', 'occured': 'occurred', 'seperate': 'separate', 'definately': 'definitely', 'accomodation': 'accommodation' };
+  let count = 0;
+  pages.forEach(p => {
+    Object.entries(misspellings).forEach(([wrong, right]) => {
+      const re = new RegExp(`\\b${wrong}\\b`, 'gi');
+      if (re.test(p.innerHTML)) {
+        p.innerHTML = p.innerHTML.replace(re, `<span class="spell-err" title="Possible misspelling. Suggestion: ${right}" onclick="fixSpelling(this,'${right}')">${wrong}</span>`);
+        count++;
+      }
+    });
+  });
+  setStatus(count ? `Found ${count} possible error(s). Click underlined words to fix.` : 'No errors found.');
+}
+window.fixSpelling = function(el, suggestion) {
+  const choice = confirm(`Replace "${el.textContent}" with "${suggestion}"?`);
+  if (choice) { el.replaceWith(document.createTextNode(suggestion)); setStatus('Spelling corrected.'); }
+};
+function openWordCount() {
+  const text = pages.map(p => p.innerText || '').join(' ');
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const chars = text.length;
+  const charsNoSpace = text.replace(/\s/g,'').length;
+  const paras = pages.map(p => p.querySelectorAll('p,h1,h2,h3,h4,li').length).reduce((a,b)=>a+b,0);
+  const sentences = (text.match(/[.!?]+/g) || []).length;
+  document.getElementById('wcBody').innerHTML = `
+    <table style="width:100%;border-collapse:collapse;">
+      <tr><td style="padding:6px;border-bottom:1px solid #eee;color:#666;">Pages</td><td style="padding:6px;border-bottom:1px solid #eee;font-weight:600;">${pages.length}</td></tr>
+      <tr><td style="padding:6px;border-bottom:1px solid #eee;color:#666;">Words</td><td style="padding:6px;border-bottom:1px solid #eee;font-weight:600;">${words.toLocaleString()}</td></tr>
+      <tr><td style="padding:6px;border-bottom:1px solid #eee;color:#666;">Characters (with spaces)</td><td style="padding:6px;border-bottom:1px solid #eee;font-weight:600;">${chars.toLocaleString()}</td></tr>
+      <tr><td style="padding:6px;border-bottom:1px solid #eee;color:#666;">Characters (no spaces)</td><td style="padding:6px;border-bottom:1px solid #eee;font-weight:600;">${charsNoSpace.toLocaleString()}</td></tr>
+      <tr><td style="padding:6px;border-bottom:1px solid #eee;color:#666;">Paragraphs</td><td style="padding:6px;border-bottom:1px solid #eee;font-weight:600;">${paras}</td></tr>
+      <tr><td style="padding:6px;color:#666;">Sentences (approx.)</td><td style="padding:6px;font-weight:600;">${sentences}</td></tr>
+    </table>`;
+  openModal('wcModal');
+}
+function openThesaurus() { openModal('thesaurusModal'); }
+function lookupThesaurus() {
+  const word = document.getElementById('thesaurusWord').value.trim().toLowerCase();
+  const synonyms = {
+    good: ['excellent','great','fine','splendid','superb','wonderful','positive','favorable'],
+    bad: ['poor','terrible','awful','dreadful','inferior','unpleasant','negative'],
+    big: ['large','huge','enormous','vast','immense','colossal','gigantic','substantial'],
+    small: ['tiny','little','miniature','compact','minute','petite','slight'],
+    fast: ['quick','rapid','swift','speedy','brisk','hasty','fleet'],
+    slow: ['sluggish','gradual','leisurely','unhurried','deliberate','tardy'],
+    important: ['significant','crucial','vital','essential','critical','fundamental','key'],
+    show: ['display','reveal','demonstrate','present','exhibit','illustrate','depict'],
+    make: ['create','produce','construct','build','form','generate','fabricate'],
+    use: ['employ','utilize','apply','exercise','deploy','leverage','implement']
+  };
+  const results = document.getElementById('thesaurusResults');
+  if (!word) { results.innerHTML = ''; return; }
+  const syns = synonyms[word];
+  if (syns) {
+    results.innerHTML = '<div style="font-weight:700;margin-bottom:6px;color:var(--accent);">Synonyms:</div>' + syns.map(s => `<span style="display:inline-block;background:var(--accent-light);border-radius:3px;padding:2px 7px;margin:2px;cursor:pointer;" onclick="document.execCommand('insertText',false,'${s}');closeModal('thesaurusModal');">${s}</span>`).join('');
+  } else {
+    results.innerHTML = `<div style="color:#999;">No synonyms found for "${word}". Try a common word.</div>`;
+  }
+}
+function openCommentModal() { openModal('commentModal'); }
+function submitComment() {
+  const author = document.getElementById('commentAuthor').value || 'Author';
+  const text = document.getElementById('commentText').value.trim();
+  if (!text) return;
+  const id = 'c' + Date.now();
+  const sel = window.getSelection();
+  const selectedText = sel ? sel.toString() : '';
+  if (selectedText) fmt('insertHTML', `<span class="comment-highlight" data-comment-id="${id}" title="${author}: ${text}">${selectedText}</span>`);
+  comments.push({ id, author, text, time: new Date().toLocaleString(), page: currentPage });
+  updateCommentsPanel();
+  closeModal('commentModal');
+  setStatus('Comment added.');
+}
+function updateCommentsPanel() {
+  const list = document.getElementById('commentsList');
+  list.innerHTML = '';
+  if (!comments.length) { list.innerHTML = '<div style="font-size:10px;color:#999;text-align:center;padding:10px;">No comments yet.</div>'; return; }
+  comments.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'comment-card';
+    div.innerHTML = `<div class="comment-author">${c.author}</div><div class="comment-text">${c.text}</div><div class="comment-time">${c.time}</div>
+      <div class="comment-actions"><button onclick="deleteComment(${i})">Delete</button><button onclick="replyComment(${i})">Reply</button></div>`;
+    list.appendChild(div);
+  });
+}
+function deleteComment(i) { comments.splice(i, 1); updateCommentsPanel(); setStatus('Comment deleted.'); }
+function replyComment(i) {
+  const reply = prompt('Reply to ' + comments[i].author + ':');
+  if (!reply) return;
+  comments.splice(i + 1, 0, { id: 'c'+Date.now(), author: 'You', text: '↩ ' + reply, time: new Date().toLocaleString(), page: currentPage });
+  updateCommentsPanel();
+}
+function toggleCommentsPanel() {
+  const p = document.getElementById('commentsPanel');
+  p.classList.toggle('open');
+}
+function toggleTrackChanges() {
+  trackChanges = !trackChanges;
+  document.getElementById('btnTrackChanges').classList.toggle('active-btn', trackChanges);
+  setStatus(trackChanges ? 'Track Changes ON' : 'Track Changes OFF');
+}
+function acceptAllChanges() {
+  pages.forEach(p => {
+    p.querySelectorAll('.tracked-insert').forEach(el => { const t = document.createTextNode(el.textContent); el.replaceWith(t); });
+    p.querySelectorAll('.tracked-delete').forEach(el => el.remove());
+  });
+  setStatus('All changes accepted.');
+}
+function rejectAllChanges() {
+  pages.forEach(p => {
+    p.querySelectorAll('.tracked-delete').forEach(el => { const t = document.createTextNode(el.textContent); el.replaceWith(t); });
+    p.querySelectorAll('.tracked-insert').forEach(el => el.remove());
+  });
+  setStatus('All changes rejected.');
+}
+function compareVersions() {
+  if (versions.length < 2) { setStatus('Need at least 2 saved versions to compare.'); return; }
+  const v1 = versions[versions.length - 2];
+  const v2 = versions[versions.length - 1];
+  const p1 = (v1.snapshot[0] || '').replace(/<[^>]+>/g,'').slice(0, 200);
+  const p2 = (v2.snapshot[0] || '').replace(/<[^>]+>/g,'').slice(0, 200);
+  alert(`Comparing last two versions:\n\n─ v${versions.length-1} (${v1.timestamp}):\n${p1}...\n\n─ v${versions.length} (${v2.timestamp}):\n${p2}...`);
+}
+function openReadingMode() {
+  document.getElementById('readingContent').innerHTML = pages.map(p => p.innerHTML).join('<hr style="margin:30px 0;border:none;border-top:1px solid #ddd;">');
+  openModal('readingModal');
+}
+function setLanguage() {
+  const lang = prompt('Set document language (e.g. EN, FR, ES, DE):', document.getElementById('langLabel').textContent);
+  if (lang) { document.getElementById('langLabel').textContent = lang.toUpperCase().slice(0,2); setStatus('Language set to ' + lang.toUpperCase()); }
+}
+function openTranslate() {
+  const from = document.getElementById('langLabel').textContent || 'EN';
+  const to = prompt('Translate to language (e.g. FR, ES, DE, ZH):', 'FR');
+  if (to) { setStatus(`Translation to ${to.toUpperCase()} requires an external translation API. Copy text and use a translation service.`); }
+}
+
+// ═══════════ DESIGN ═══════════
+function changeBackgroundColor(c) { pages[currentPage].style.background = c; }
+function applyGradient(v) { if (!v) pages[currentPage].style.background = '#fff'; else pages[currentPage].style.background = v; }
+function applyPattern(p) {
+  const pg = pages[currentPage]; pg.style.background = '#fff'; pg.style.backgroundImage = 'none';
+  if (p === 'dots') { pg.style.backgroundImage = 'radial-gradient(#ccc 1px, transparent 1px)'; pg.style.backgroundSize = '20px 20px'; }
+  else if (p === 'grid') { pg.style.backgroundImage = 'linear-gradient(#ddd 1px,transparent 1px),linear-gradient(to right,#ddd 1px,transparent 1px)'; pg.style.backgroundSize = '20px 20px'; }
+  else if (p === 'lines') { pg.style.backgroundImage = 'linear-gradient(#ddd 1px,transparent 1px)'; pg.style.backgroundSize = '100% 28px'; }
+}
+function applyPageBorder(style) {
+  if (style === 'none') pages[currentPage].style.outline = '';
+  else pages[currentPage].style.outline = `4px ${style} var(--accent)`;
+}
+function applyWatermark() {
+  const text = document.getElementById('watermarkText').value.trim();
+  if (!text) return;
+  const pg = pages[currentPage];
+  let wm = pg.querySelector('.watermark');
+  if (!wm) { wm = document.createElement('div'); wm.className = 'watermark'; pg.appendChild(wm); }
+  wm.style.cssText = `position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);font-size:72pt;color:rgba(0,0,0,0.06);font-weight:900;pointer-events:none;white-space:nowrap;z-index:0;user-select:none;`;
+  wm.textContent = text;
+  setStatus('Watermark applied.');
+}
+function removeWatermark() {
+  const wm = pages[currentPage].querySelector('.watermark');
+  if (wm) wm.remove(); setStatus('Watermark removed.');
+}
+function applyTemplate(tpl) {
+  if (!tpl) return;
+  const pg = pages[currentPage];
+  const t = {
+    classic: { fontFamily:'Times New Roman,serif', background:'#fff', color:'#000', padding:'96px' },
+    modern: { fontFamily:'Segoe UI,sans-serif', background:'#f8f9fb', color:'#222', padding:'80px 100px' },
+    academic: { fontFamily:'Georgia,serif', background:'#fffdf5', color:'#111', padding:'100px' },
+    minimal: { fontFamily:'Calibri,sans-serif', background:'#fff', color:'#1a1a1a', padding:'80px' },
+    dark: { fontFamily:'Arial,sans-serif', background:'#1e1e2e', color:'#e0e0e0', padding:'96px' },
+    report: { fontFamily:'Calibri,sans-serif', background:'#f4f6f9', color:'#1a1a1a', padding:'80px 100px' }
+  };
+  if (t[tpl]) Object.assign(pg.style, t[tpl]);
+  setStatus('Template "' + tpl + '" applied.');
+}
+function applyTheme(theme) {
+  const themes = {
+    blue: { '--accent':'#2b579a','--accent-light':'#dce6f7' },
+    green: { '--accent':'#217346','--accent-light':'#d0f0e0' },
+    red: { '--accent':'#c0392b','--accent-light':'#fde8e6' },
+    purple: { '--accent':'#6b3fa0','--accent-light':'#ede0ff' },
+    teal: { '--accent':'#117a8b','--accent-light':'#d0f0f5' }
+  };
+  if (!themes[theme]) return;
+  Object.entries(themes[theme]).forEach(([k,v]) => document.documentElement.style.setProperty(k,v));
+  setStatus('Theme changed to ' + theme + '.');
+}
+
+// ═══════════ VIEW ═══════════
+let currentZoomVal = 1;
+function zoomPage(f) { setZoom(Math.max(0.4, Math.min(2.5, currentZoomVal * f)); }
+function setZoom(z) {
+  currentZoomVal = z;
+  document.getElementById('contentArea').style.zoom = z;
+  document.getElementById('zoomLabel').textContent = Math.round(z*100)+'%';
+}
 function togglePagePanel() {
   const p = document.getElementById('pagesPanel');
   p.style.display = p.style.display === 'none' ? '' : 'none';
 }
+function toggleRuler() {
+  const r = document.getElementById('ruler');
+  const btn = document.getElementById('btnRuler');
+  const visible = r.style.display !== 'none';
+  r.style.display = visible ? 'none' : '';
+  btn.classList.toggle('active-btn', !visible);
+}
+function toggleGridlines() {
+  const btn = document.getElementById('btnGridlines');
+  const active = btn.classList.toggle('active-btn');
+  pages.forEach(p => {
+    if (active) { p.style.backgroundImage = 'linear-gradient(rgba(43,87,154,.05) 1px, transparent 1px), linear-gradient(to right, rgba(43,87,154,.05) 1px, transparent 1px)'; p.style.backgroundSize = '20px 20px'; }
+    else { p.style.backgroundImage = ''; p.style.backgroundSize = ''; }
+  });
+}
+function toggleParaMarks() {
+  const btn = document.getElementById('btnPara');
+  const active = btn.classList.toggle('active-btn');
+  document.querySelectorAll('.page p').forEach(p => { p.classList.toggle('para-mark', active); });
+  if (active) {
+    const style = document.createElement('style'); style.id = 'para-marks';
+    style.textContent = '.para-mark::after { content:"¶"; color:rgba(43,87,154,.3); font-size:0.9em; }';
+    document.head.appendChild(style);
+  } else { const s = document.getElementById('para-marks'); if (s) s.remove(); }
+}
+function openPrintPreview() {
+  const area = document.getElementById('printPreviewArea');
+  area.innerHTML = '';
+  pages.forEach(p => {
+    const pp = document.createElement('div');
+    pp.className = 'pp-page';
+    pp.innerHTML = p.innerHTML;
+    area.appendChild(pp);
+  });
+  openModal('printModal');
+}
 
-// ── Versions ──
+// ═══════════ RULER ═══════════
+function buildRuler() {
+  const inner = document.getElementById('rulerInner');
+  inner.innerHTML = '';
+  for (let i = 0; i <= 8.5; i += 0.25) {
+    const px = (i / 8.5) * 816;
+    const tick = document.createElement('div');
+    tick.className = 'ruler-tick';
+    tick.style.cssText = `left:${px}px;height:${i%1===0?10:i%0.5===0?6:3}px;`;
+    inner.appendChild(tick);
+    if (i > 0 && i < 8.5 && i % 1 === 0) {
+      const label = document.createElement('div');
+      label.className = 'ruler-mark';
+      label.textContent = Math.round(i);
+      label.style.cssText = `left:${px - 3}px;`;
+      inner.appendChild(label);
+    }
+  }
+}
+
+// ═══════════ WORD COUNT ═══════════
+function updateWordCount() {
+  const text = pages.map(p => p.innerText || '').join(' ');
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const chars = text.replace(/\s/g,'').length;
+  document.getElementById('wordCount').textContent = `Words: ${words.toLocaleString()}`;
+  document.getElementById('charCount').textContent = `Chars: ${chars.toLocaleString()}`;
+}
+
+// ═══════════ VERSIONS ═══════════
 function saveVersion() {
-  const snapshot = pages.map(p => p.innerHTML);
-  const timestamp = new Date().toLocaleString();
-  versions.push({ timestamp, snapshot });
-  updateVersionPanel();
-  saveDocument();
-  setStatus('Version saved: ' + timestamp);
+  const ts = new Date().toLocaleString();
+  versions.push({ timestamp: ts, snapshot: pages.map(p => p.innerHTML) });
+  updateVersionPanel(); saveDocument();
+  setStatus('Version saved: ' + ts);
 }
 function updateVersionPanel() {
   const panel = document.getElementById('versionPanel');
   panel.innerHTML = '';
-  if (!versions.length) {
-    panel.innerHTML = '<div style="font-size:10px;color:var(--muted);padding:4px;">No versions saved.</div>';
-    return;
-  }
-  versions.forEach((v, i) => {
-    const div = document.createElement('div');
-    div.className = 'version-item';
-    div.innerHTML = `<div class="version-time">${v.timestamp}</div>
+  if (!versions.length) { panel.innerHTML = '<div style="font-size:9px;color:#999;padding:4px;">No saved versions.</div>'; return; }
+  [...versions].reverse().forEach((v, ri) => {
+    const i = versions.length - 1 - ri;
+    const div = document.createElement('div'); div.className = 'version-item';
+    div.innerHTML = `<div class="version-time">v${i+1} — ${v.timestamp}</div>
       <div class="version-actions">
         <button onclick="restoreVersion(${i})">Restore</button>
-        <button onclick="deleteVersion(${i})">Delete</button>
+        <button onclick="previewVersion(${i})">Preview</button>
+        <button onclick="deleteVersion(${i})">✕</button>
       </div>`;
     panel.appendChild(div);
   });
 }
-function restoreVersion(index) {
-  if (!confirm('Restore this version? Current content will be replaced.')) return;
-  const ver = versions[index];
-  if (!ver) return;
-  // Clear & rebuild
+function restoreVersion(i) {
+  if (!confirm('Restore version ' + (i+1) + '? Current content will be replaced.')) return;
   const area = document.getElementById('contentArea');
-  pages.forEach(p => p.remove());
-  pages = [];
-  ver.snapshot.forEach(html => addPage(html));
-  setStatus('Version restored.');
+  pages.forEach(p => p.remove()); pages = [];
+  versions[i].snapshot.forEach(html => addPage(html));
+  setStatus('Version ' + (i+1) + ' restored.');
 }
-function deleteVersion(index) {
-  versions.splice(index, 1);
-  updateVersionPanel();
-  saveDocument();
-  setStatus('Version deleted.');
-}
-function loadVersionFromPanel() { setStatus('Click "Restore" next to a version in the sidebar.'); }
-function deleteVersionFromPanel() { setStatus('Click "Delete" next to a version in the sidebar.'); }
+window.previewVersion = function(i) {
+  const win = window.open('', '_blank', 'width=900,height=700');
+  win.document.write('<html><body style="padding:40px;font-family:Calibri;">' + versions[i].snapshot.join('<hr>') + '</body></html>');
+};
+function deleteVersion(i) { versions.splice(i, 1); updateVersionPanel(); saveDocument(); setStatus('Version deleted.'); }
 
-// ── Design ──
-function changeBackgroundColor(color) { pages[currentPage].style.background = color; }
-function applyGradient(gradient) {
-  if (!gradient) { pages[currentPage].style.background = '#ffffff'; return; }
-  pages[currentPage].style.background = gradient;
-}
-function applyPattern(pattern) {
-  const page = pages[currentPage];
-  page.style.background = '#fff';
-  page.style.backgroundImage = 'none';
-  if (pattern === 'dots') { page.style.backgroundImage = 'radial-gradient(#ccc 1px, transparent 1px)'; page.style.backgroundSize = '20px 20px'; }
-  else if (pattern === 'grid') { page.style.backgroundImage = 'linear-gradient(#ddd 1px, transparent 1px),linear-gradient(to right,#ddd 1px,transparent 1px)'; page.style.backgroundSize = '20px 20px'; }
-  else if (pattern === 'lines') { page.style.backgroundImage = 'linear-gradient(#ddd 1px, transparent 1px)'; page.style.backgroundSize = '100% 28px'; }
-}
-function applyTemplate(template) {
-  if (!template) return;
-  const page = pages[currentPage];
-  const templates = {
-    classic: { fontFamily: 'Times New Roman, serif', background: '#ffffff', color: '#000', padding: '96px' },
-    modern: { fontFamily: 'Segoe UI, sans-serif', background: '#f8f9fb', color: '#333', padding: '80px 96px' },
-    academic: { fontFamily: 'Georgia, serif', background: '#fffdf5', color: '#222', padding: '100px' },
-    dark: { fontFamily: 'Arial, sans-serif', background: '#1e1e2e', color: '#e0e0e0', padding: '96px' }
-  };
-  if (templates[template]) Object.assign(page.style, templates[template]);
-}
-
-// ── Export ──
+// ═══════════ EXPORT ═══════════
 async function exportPDF() {
   setStatus('Generating PDF...');
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF('p', 'pt', 'a4');
+  const doc = new jsPDF('p','pt','a4');
   for (let i = 0; i < pages.length; i++) {
-    const prevDisplay = pages[i].style.display;
-    pages[i].style.display = 'block';
-    const canvas = await html2canvas(pages[i], { scale: 2 });
-    pages[i].style.display = prevDisplay;
-    const imgData = canvas.toDataURL('image/png');
-    const pw = doc.internal.pageSize.getWidth();
-    const ph = doc.internal.pageSize.getHeight();
-    doc.addImage(imgData, 'PNG', 0, 0, pw, ph);
+    const prev = pages[i].style.display; pages[i].style.display = 'block';
+    const canvas = await html2canvas(pages[i], { scale: 1.5, useCORS: true });
+    pages[i].style.display = prev;
+    const img = canvas.toDataURL('image/jpeg', 0.95);
+    const w = doc.internal.pageSize.getWidth(), h = doc.internal.pageSize.getHeight();
+    doc.addImage(img,'JPEG',0,0,w,h);
     if (i < pages.length - 1) doc.addPage();
   }
   doc.save('document.pdf');
   setStatus('PDF exported.');
 }
 async function exportPNG() {
-  setStatus('Generating PNG...');
+  setStatus('Exporting PNG...');
+  for (let i = 0; i < pages.length; i++) {
+    const prev = pages[i].style.display; pages[i].style.display = 'block';
+    const canvas = await html2canvas(pages[i], { scale: 2, useCORS: true });
+    pages[i].style.display = prev;
+    const a = document.createElement('a'); a.href = canvas.toDataURL('image/png'); a.download = `page-${i+1}.png`; a.click();
+  }
+  setStatus('PNG exported.');
+}
+function goDashboard() {
+  if (confirm('Return to Dashboard? Document will be saved.')) { saveDocument(); location.href = 'dashboard.html'; }
+}
+
+// ═══════════ SLIDESHOW ═══════════
+function startFromBeginning() { ssIndex = 0; launchSS(); }
+function startFromCurrent() { ssIndex = currentPage; launchSS(); }
+function launchSS() {
+  document.getElementById('ssOverlay').classList.add('active');
+  showSlide(ssIndex);
+  const dur = (parseInt(document.getElementById('slideDuration').value)||3)*1000;
+  clearInterval(ssInterval);
+  ssInterval = setInterval(() => { ssIndex = (ssIndex+1)%pages.length; showSlide(ssIndex); }, dur);
+}
+function showSlide(i) {
+  document.getElementById('ssSlide').innerHTML = pages[i].innerHTML;
+  document.getElementById('ssCounter').textContent = `${i+1} / ${pages.length}`;
+}
+function prevSlide() { ssIndex = (ssIndex-1+pages.length)%pages.length; showSlide(ssIndex); }
+function nextSlide() { ssIndex = (ssIndex+1)%pages.length; showSlide(ssIndex); }
+function stopSlideshow() { clearInterval(ssInterval); ssInterval = null; document.getElementById('ssOverlay').classList.remove('active'); }
+
+// ═══════════ GRAPH ═══════════
+function addGraphFn() {
+  let expr = document.getElementById('funcInput').value.trim(); if (!expr) return;
+  ['sin','cos','tan','log','sqrt','abs','exp'].forEach(fn => { expr = expr.replace(new RegExp(`\\b${fn}\\b`,'g'),`Math.${fn}`); });
+  expr = expr.replace(/([a-zA-Z0-9\)\]])\s*\^\s*([-\d\.a-zA-Z]+)/g,'Math.pow($1,$2)');
+  graphFns.push(expr); plotGraph(); document.getElementById('funcInput').value = '';
+}
+function plotGraph() {
+  const canvas = document.getElementById('graphCanvas'), ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height, ox = w/2, oy = h/2;
+  ctx.clearRect(0,0,w,h); ctx.fillStyle='#fafafa'; ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle='#e8e8e8'; ctx.lineWidth=1;
+  for (let x=ox%graphScale;x<w;x+=graphScale){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+  for (let y=oy%graphScale;y<h;y+=graphScale){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  ctx.strokeStyle='#555'; ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(0,oy);ctx.lineTo(w,oy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ox,0);ctx.lineTo(ox,h);ctx.stroke();
+  ctx.fillStyle='#333'; ctx.font='10px Segoe UI';
+  ctx.fillText('x',w-12,oy-4); ctx.fillText('y',ox+4,10);
+  graphFns.forEach((fn,i) => {
+    ctx.beginPath(); ctx.strokeStyle=graphColors[i%graphColors.length]; ctx.lineWidth=2;
+    for (let px=0;px<=w;px++) {
+      const x=(px-ox)/graphScale; let y; try{y=eval(fn.replace(/x/g,`(${x})`))}catch{y=NaN;}
+      if(!isNaN(y)&&isFinite(y)){const py=oy-y*graphScale; px===0?ctx.moveTo(px,py):ctx.lineTo(px,py);}
+    }
+    ctx.stroke();
+  });
+}
+function clearGraph(){graphFns=[];plotGraph();}
+function graphZoomIn(){graphScale*=1.2;plotGraph();}
+function graphZoomOut(){graphScale/=1.2;plotGraph();}
+function insertGraphToDoc(){
+  const canvas=document.getElementById('graphCanvas'),img=document.createElement('img');
+  img.src=canvas.toDataURL('image/png'); img.style.cssText='max-width:100%;display:block;margin:10px 0;border-radius:3px;';
+  insertNode(img); closeGraphPanel();
+}
+function openGraphPanel(){document.getElementById('graphPanel').style.display='block';plotGraph();}
+function closeGraphPanel(){document.getElementById('graphPanel').style.display='none';}
+(()=>{
+  const el=document.getElementById('graphPanel'), hd=document.getElementById('graphPanelHeader');
+  let p=[0,0,0,0];
+  hd.onmousedown=e=>{e.preventDefault();p=[e.clientX,e.clientY,el.offsetLeft,el.offsetTop];
+    document.onmousemove=e2=>{el.style.left=(p[2]+e2.clientX-p[0])+'px';el.style.top=(p[3]+e2.clientY-p[1])+'px';};
+    document.onmouseup=()=>{document.onmousemove=null;document.onmouseup=null;};};
+})();
+
+// ═══════════ MODALS ═══════════
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  const firstInput = document.querySelector(`#${id} input,#${id} textarea`);
+  if (firstInput) setTimeout(() => firstInput.focus(), 60);
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-mask').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
+
+// ═══════════ INIT ═══════════
+buildRuler();
+if (!docId) { document.getElementById('docTitleDisplay').textContent = '— New Document'; addPage(); }
+else loadDocument();
+startAutoSave();
+document.addEventListener('click', e => { if (!e.target.closest('#tableCtx')) closeTableCtx(); });
+</script>
+</body>
+</html>
