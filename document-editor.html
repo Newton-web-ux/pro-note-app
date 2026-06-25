@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Newtonian Academy — Document Editor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+<style>
+:root {
+  --accent: #2b579a;
+  --accent-dark: #1e3f73;
+  --accent-light: #dce6f7;
+  --bg: #f3f3f3;
+  --white: #ffffff;
+  --border: #d0d0d0;
+  --text: #1a1a1a;
+  --muted: #666;
+  --danger: #c0392b;
+  --toolbar-bg: #f8f8f8;
+  --tab-active: #2b579a;
+  --ribbon-height: 88px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  overflow: hidden;
+}
+
+/* ── Title Bar ── */
+.title-bar {
+  background: var(--accent);
+  color: white;
+  padding: 6px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+  flex-shrink: 0;
+}
+.title-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.title-bar-name {
+  font-weight: 600;
+}
+.title-bar-doc {
+  opacity: 0.8;
+  font-size: 12px;
+}
+.title-bar-right {
+  display: flex;
+  gap: 6px;
+}
+.hdr-btn {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: white;
+  border-radius: 3px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+.hdr-btn:hover { background: rgba(255,255,255,0.25); }
+.hdr-btn.primary { background: rgba(255,255,255,0.9); color: var(--accent); font-weight: 600; }
+.hdr-btn.primary:hover { background: white; }
+
+/* ── Ribbon Tabs ── */
+.ribbon-tabs {
+  background: var(--accent);
+  display: flex;
+  align-items: flex-end;
+  padding: 0 16px;
+  flex-shrink: 0;
+  gap: 2px;
+}
+.tab-btn {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: rgba(255,255,255,0.85);
+  border-radius: 3px 3px 0 0;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  transition: all 0.15s;
+  border-bottom: 2px solid transparent;
+}
+.tab-btn:hover { background: rgba(255,255,255,0.2); }
+.tab-btn.active {
+  background: var(--toolbar-bg);
+  color: var(--text);
+  border-bottom: 2px solid var(--toolbar-bg);
+}
+
+/* ── Ribbon Toolbar ── */
+.ribbon-toolbar {
+  background: var(--toolbar-bg);
+  border-bottom: 2px solid var(--border);
+  padding: 6px 12px;
+  display: none;
+  align-items: flex-start;
+  gap: 2px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  min-height: 62px;
+}
+.ribbon-toolbar.active { display: flex; }
+
+.ribbon-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 6px;
+  border-right: 1px solid var(--border);
+  gap: 4px;
+}
+.ribbon-group:last-child { border-right: none; }
+.ribbon-group-label {
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: auto;
+}
+.ribbon-group-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: nowrap;
+}
+
+.tb-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 10px;
+  font-family: inherit;
+  transition: all 0.12s;
+  min-width: 36px;
+  white-space: nowrap;
+}
+.tb-btn:hover { background: var(--accent-light); border-color: #b8cef0; color: var(--accent); }
+.tb-btn:active { background: #c0d8f5; }
+.tb-btn .tb-icon { font-size: 17px; line-height: 1; }
+.tb-btn .tb-icon.text { font-size: 13px; font-weight: 700; font-family: 'Segoe UI', sans-serif; height: 17px; display: flex; align-items: center; }
+.tb-btn.small { flex-direction: row; gap: 4px; min-width: auto; font-size: 11px; padding: 4px 7px; }
+.tb-btn.small .tb-icon { font-size: 13px; }
+
+.tb-select {
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: white;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--text);
+  cursor: pointer;
+  height: 26px;
+}
+.tb-select:hover { border-color: var(--accent); }
+.tb-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(43,87,154,0.15); }
+
+.tb-input {
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: white;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--text);
+  height: 26px;
+}
+.tb-input:focus { outline: none; border-color: var(--accent); }
+
+.tb-color {
+  width: 28px;
+  height: 26px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.tb-divider { width: 1px; height: 32px; background: var(--border); margin: 0 2px; }
+
+/* ── Layout ── */
+.editor-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Pages Sidebar ── */
+.pages-panel {
+  width: 168px;
+  background: #e8e8e8;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 10px 8px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pages-panel::-webkit-scrollbar { width: 4px; }
+.pages-panel::-webkit-scrollbar-thumb { background: #bbb; border-radius: 2px; }
+.panel-section-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.page-thumb {
+  background: white;
+  border: 2px solid var(--border);
+  border-radius: 3px;
+  padding: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  text-align: center;
+}
+.page-thumb:hover { border-color: var(--accent); }
+.page-thumb.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.page-thumb-preview {
+  width: 100%;
+  height: 90px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  gap: 2px;
+}
+.page-thumb-line {
+  height: 2px;
+  background: #e0e0e0;
+  border-radius: 1px;
+}
+.page-thumb-label {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.version-item {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 5px 7px;
+  font-size: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 4px;
+}
+.version-time { font-weight: 500; }
+.version-actions { display: flex; gap: 3px; }
+.version-actions button {
+  font-size: 9px;
+  padding: 2px 5px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: white;
+  cursor: pointer;
+  font-family: inherit;
+}
+.version-actions button:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+
+/* ── Canvas Area ── */
+.canvas-area {
+  flex: 1;
+  overflow: auto;
+  background: #808080;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 20px;
+  gap: 20px;
+}
+.canvas-area::-webkit-scrollbar { width: 10px; height: 10px; }
+.canvas-area::-webkit-scrollbar-thumb { background: #666; border-radius: 5px; }
+.canvas-area::-webkit-scrollbar-track { background: #808080; }
+
+.page {
+  background: white;
+  width: 816px;
+  min-height: 1056px;
+  padding: 96px 96px 80px;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  color: #000;
+  outline: none;
+  flex-shrink: 0;
+  font-size: 12pt;
+  line-height: 1.6;
+  font-family: 'Calibri', 'Segoe UI', sans-serif;
+}
+.page::before {
+  content: attr(data-page-num);
+  position: absolute;
+  bottom: 36px;
+  width: 100%;
+  left: 0;
+  text-align: center;
+  font-size: 10pt;
+  color: #999;
+  pointer-events: none;
+}
+.page[contenteditable="true"] { caret-color: var(--accent); }
+.page table { border-collapse: collapse; width: 100%; margin: 8px 0; }
+.page td, .page th { border: 1px solid #999; padding: 5px 8px; }
+.page th { background: #f0f4ff; font-weight: 600; }
+img.draggable { position: absolute; cursor: move; max-width: 90%; }
+
+/* ── Status Bar ── */
+.status-bar {
+  background: var(--accent);
+  color: rgba(255,255,255,0.85);
+  font-size: 11px;
+  padding: 3px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.status-bar-right { display: flex; gap: 16px; }
+
+/* ── Floating Graph Panel ── */
+#floatingPanel {
+  display: none;
+  position: fixed;
+  top: 120px;
+  left: 200px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  z-index: 9999;
+  overflow: hidden;
+  min-width: 440px;
+}
+#floatingPanelHeader {
+  background: var(--accent);
+  color: white;
+  padding: 8px 12px;
+  cursor: move;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+}
+#floatingPanelHeader .close-btn {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  border-radius: 3px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.graph-body { padding: 12px; }
+#graphCanvas {
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  display: block;
+  margin-bottom: 10px;
+}
+.graph-controls {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.graph-controls input {
+  flex: 1;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: inherit;
+}
+.graph-controls button {
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: white;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: inherit;
+}
+.graph-controls button:hover { background: var(--accent-light); border-color: var(--accent); }
+
+/* ── Slideshow overlay ── */
+.slideshow-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: black;
+  z-index: 9998;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.slideshow-overlay.active { display: flex; }
+.slideshow-slide {
+  background: white;
+  width: 90vw;
+  height: 85vh;
+  overflow: hidden;
+  border-radius: 4px;
+  padding: 60px;
+  font-size: 14pt;
+}
+.slideshow-controls {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+}
+.slideshow-controls button {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+}
+.slideshow-controls button:hover { background: rgba(255,255,255,0.25); }
+
+/* ── Find/Replace Bar ── */
+.find-bar {
+  display: none;
+  background: white;
+  border-bottom: 1px solid var(--border);
+  padding: 6px 16px;
+  gap: 8px;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.find-bar.open { display: flex; }
+.find-bar input { padding: 4px 8px; border: 1px solid var(--border); border-radius: 3px; font-size: 12px; font-family: inherit; width: 200px; }
+.find-bar input:focus { outline: none; border-color: var(--accent); }
+.find-bar button { padding: 4px 10px; border: 1px solid var(--border); border-radius: 3px; background: white; cursor: pointer; font-size: 11px; font-family: inherit; }
+.find-bar button:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+.find-bar-close { margin-left: auto; background: none; border: none; cursor: pointer; font-size: 16px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- Title Bar -->
+<div class="title-bar">
+  <div class="title-bar-left">
+    <span style="background:rgba(255,255,255,0.2);padding:2px 7px;border-radius:3px;font-size:12px;">📄</span>
+    <span class="title-bar-name">Newtonian Academy</span>
+    <span class="title-bar-doc" id="docTitleDisplay">— Loading...</span>
+  </div>
+  <div class="title-bar-right">
+    <button class="hdr-btn" onclick="saveVersion()">💾 Save Version</button>
+    <button class="hdr-btn" onclick="exportPDF()">📄 Export PDF</button>
+    <button class="hdr-btn" onclick="exportPNG()">🖼 Export PNG</button>
+    <button class="hdr-btn primary" onclick="saveDocument()">💾 Save</button>
+    <button class="hdr-btn" onclick="goDashboard()">🏠 Dashboard</button>
+  </div>
+</div>
+
+<!-- Ribbon Tabs -->
+<div class="ribbon-tabs">
+  <button class="tab-btn active" data-tab="home" onclick="switchTab('home')">Home</button>
+  <button class="tab-btn" data-tab="insert" onclick="switchTab('insert')">Insert</button>
+  <button class="tab-btn" data-tab="design" onclick="switchTab('design')">Design</button>
+  <button class="tab-btn" data-tab="slideshow" onclick="switchTab('slideshow')">Slideshow</button>
+  <button class="tab-btn" data-tab="version" onclick="switchTab('version')">History</button>
+  <button class="tab-btn" data-tab="view" onclick="switchTab('view')">View</button>
+</div>
+
+<!-- Home Toolbar -->
+<div id="home" class="ribbon-toolbar active">
+  <!-- Clipboard -->
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <button class="tb-btn" onclick="formatText('undo')" title="Undo (Ctrl+Z)">
+        <span class="tb-icon">↶</span> Undo
+      </button>
+      <button class="tb-btn" onclick="formatText('redo')" title="Redo (Ctrl+Y)">
+        <span class="tb-icon">↷</span> Redo
+      </button>
+    </div>
+    <div class="ribbon-group-label">Clipboard</div>
+  </div>
+
+  <!-- Font -->
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <select class="tb-select" onchange="applyFont(this.value)" title="Font family" style="width:120px;">
+        <option value="Calibri">Calibri</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Arial">Arial</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Segoe UI">Segoe UI</option>
+        <option value="Verdana">Verdana</option>
+      </select>
+      <input class="tb-input" type="number" min="6" max="96" value="12" style="width:50px;" onchange="applyFontSize(this.value)" title="Font size">
+    </div>
+    <div class="ribbon-group-row">
+      <button class="tb-btn small" onclick="formatText('bold')" title="Bold (Ctrl+B)"><span class="tb-icon text"><b>B</b></span></button>
+      <button class="tb-btn small" onclick="formatText('italic')" title="Italic (Ctrl+I)"><span class="tb-icon text"><i>I</i></span></button>
+      <button class="tb-btn small" onclick="formatText('underline')" title="Underline (Ctrl+U)"><span class="tb-icon text"><u>U</u></span></button>
+      <button class="tb-btn small" onclick="formatText('strikeThrough')" title="Strikethrough"><span class="tb-icon text" style="text-decoration:line-through">S</span></button>
+      <button class="tb-btn small" onclick="formatText('superscript')" title="Superscript"><span class="tb-icon text">X²</span></button>
+      <button class="tb-btn small" onclick="formatText('subscript')" title="Subscript"><span class="tb-icon text">X₂</span></button>
+      <input class="tb-color" type="color" onchange="formatText('foreColor', this.value)" title="Font Color" value="#000000">
+      <input class="tb-color" id="highlightColorPicker" type="color" value="#ffff00" title="Highlight Color">
+      <button class="tb-btn small" onclick="highlightText()" title="Highlight">🖍</button>
+      <button class="tb-btn small" onclick="clearFormatting()" title="Clear Formatting">🧹</button>
+    </div>
+    <div class="ribbon-group-label">Font</div>
+  </div>
+
+  <!-- Paragraph -->
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <select class="tb-select" onchange="formatText('formatBlock', this.value)" title="Heading style">
+        <option value="p">Normal</option>
+        <option value="h1">Heading 1</option>
+        <option value="h2">Heading 2</option>
+        <option value="h3">Heading 3</option>
+        <option value="h4">Heading 4</option>
+        <option value="pre">Preformatted</option>
+      </select>
+    </div>
+    <div class="ribbon-group-row">
+      <button class="tb-btn small" onclick="formatText('justifyLeft')" title="Align Left">≡L</button>
+      <button class="tb-btn small" onclick="formatText('justifyCenter')" title="Center">≡C</button>
+      <button class="tb-btn small" onclick="formatText('justifyRight')" title="Align Right">≡R</button>
+      <button class="tb-btn small" onclick="formatText('justifyFull')" title="Justify">≡J</button>
+      <div class="tb-divider"></div>
+      <button class="tb-btn small" onclick="formatText('insertUnorderedList')" title="Bullet List">• List</button>
+      <button class="tb-btn small" onclick="formatText('insertOrderedList')" title="Numbered List">1. List</button>
+      <button class="tb-btn small" onclick="formatText('indent')" title="Indent">→</button>
+      <button class="tb-btn small" onclick="formatText('outdent')" title="Outdent">←</button>
+    </div>
+    <div class="ribbon-group-label">Paragraph</div>
+  </div>
+
+  <!-- Line Spacing -->
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <select class="tb-select" onchange="applyLineSpacing(this.value)" title="Line Spacing">
+        <option value="1">Single</option>
+        <option value="1.5" selected>1.5x</option>
+        <option value="2">Double</option>
+      </select>
+    </div>
+    <div class="ribbon-group-label">Spacing</div>
+  </div>
+
+  <!-- Find -->
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <button class="tb-btn" onclick="toggleFindBar()" title="Find & Replace">
+        <span class="tb-icon">🔍</span> Find
+      </button>
+    </div>
+    <div class="ribbon-group-label">Editing</div>
+  </div>
+</div>
+
+<!-- Insert Toolbar -->
+<div id="insert" class="ribbon-toolbar">
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <button class="tb-btn" onclick="addPage()"><span class="tb-icon">📄</span> Add Page</button>
+      <button class="tb-btn" onclick="deletePage()"><span class="tb-icon">🗑</span> Delete</button>
+    </div>
+    <div class="ribbon-group-label">Pages</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <button class="tb-btn" onclick="insertTable()"><span class="tb-icon">⊞</span> Table</button>
+      <button class="tb-btn" onclick="insertImage()"><span class="tb-icon">🖼</span> Image</button>
+      <button class="tb-btn" onclick="deleteSelectedImage()"><span class="tb-icon">✂</span> Del Image</button>
+      <button class="tb-btn" onclick="insertHR()"><span class="tb-icon">—</span> Line</button>
+    </div>
+    <div class="ribbon-group-label">Objects</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <input class="tb-input" type="text" id="latexInput" placeholder="LaTeX: x^2+y^2" style="width:140px;">
+      <button class="tb-btn small" onclick="insertLatex()">∑ Insert</button>
+    </div>
+    <div class="ribbon-group-row">
+      <select class="tb-select" id="mathDropdown" onchange="insertSelectedMathSymbol()" style="width:160px;">
+        <option value="">— Insert Symbol —</option>
+        <optgroup label="Basic">
+          <option value="π">π (Pi)</option><option value="∞">∞ (Infinity)</option>
+          <option value="√">√ (Sqrt)</option><option value="≈">≈ (Approx)</option>
+          <option value="≠">≠ (Not Equal)</option><option value="≤">≤ (Less/Equal)</option>
+          <option value="≥">≥ (Greater/Equal)</option><option value="Δ">Δ (Delta)</option>
+        </optgroup>
+        <optgroup label="Greek">
+          <option value="α">α Alpha</option><option value="β">β Beta</option>
+          <option value="γ">γ Gamma</option><option value="θ">θ Theta</option>
+          <option value="λ">λ Lambda</option><option value="μ">μ Mu</option>
+          <option value="σ">σ Sigma</option><option value="Ω">Ω Omega</option>
+        </optgroup>
+        <optgroup label="Arrows">
+          <option value="→">→ Right</option><option value="←">← Left</option>
+          <option value="↑">↑ Up</option><option value="↓">↓ Down</option>
+          <option value="⇌">⇌ Equilibrium</option>
+        </optgroup>
+        <optgroup label="Operators">
+          <option value="×">× Multiply</option><option value="÷">÷ Divide</option>
+          <option value="∑">∑ Sum</option><option value="∫">∫ Integral</option>
+          <option value="∂">∂ Partial</option>
+        </optgroup>
+        <optgroup label="Sets">
+          <option value="∈">∈ Element</option><option value="∉">∉ Not Element</option>
+          <option value="∪">∪ Union</option><option value="∩">∩ Intersect</option>
+          <option value="⊂">⊂ Subset</option><option value="∅">∅ Empty Set</option>
+        </optgroup>
+      </select>
+      <button class="tb-btn small" onclick="openGraphPanel()"><span class="tb-icon">📈</span> Graph</button>
+    </div>
+    <div class="ribbon-group-label">Math & Symbols</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <input class="tb-input" type="text" id="linkUrl" placeholder="https://..." style="width:150px;">
+      <button class="tb-btn small" onclick="insertLink()">🔗 Link</button>
+    </div>
+    <div class="ribbon-group-label">Links</div>
+  </div>
+</div>
+
+<!-- Design Toolbar -->
+<div id="design" class="ribbon-toolbar">
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <select class="tb-select" onchange="applyTemplate(this.value)" style="width:120px;">
+        <option value="">Template...</option>
+        <option value="classic">Classic</option>
+        <option value="modern">Modern</option>
+        <option value="academic">Academic</option>
+        <option value="dark">Dark Mode</option>
+      </select>
+    </div>
+    <div class="ribbon-group-label">Templates</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <input class="tb-color" type="color" id="bgColorPicker" value="#ffffff" onchange="changeBackgroundColor(this.value)" title="Page background color">
+    </div>
+    <div class="ribbon-group-label">Background</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <select class="tb-select" onchange="applyGradient(this.value)" style="width:120px;">
+        <option value="">No Gradient</option>
+        <option value="linear-gradient(to right, #ff7e5f, #feb47b)">Sunset</option>
+        <option value="linear-gradient(to right, #6a11cb, #2575fc)">Purple Blue</option>
+        <option value="linear-gradient(to right, #00c6ff, #0072ff)">Ocean</option>
+        <option value="linear-gradient(135deg,#f5f7fa,#c3cfe2)">Silver</option>
+      </select>
+    </div>
+    <div class="ribbon-group-label">Gradient</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <select class="tb-select" onchange="applyPattern(this.value)" style="width:100px;">
+        <option value="">No Pattern</option>
+        <option value="dots">Dots</option>
+        <option value="grid">Grid</option>
+        <option value="lines">Lines</option>
+      </select>
+    </div>
+    <div class="ribbon-group-label">Pattern</div>
+  </div>
+</div>
+
+<!-- Slideshow Toolbar -->
+<div id="slideshow" class="ribbon-toolbar">
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <button class="tb-btn" onclick="startFromBeginning()"><span class="tb-icon">⏮</span> From Start</button>
+      <button class="tb-btn" onclick="startFromCurrent()"><span class="tb-icon">▶</span> From Here</button>
+      <button class="tb-btn" onclick="stopSlideshow()"><span class="tb-icon">⏹</span> Stop</button>
+    </div>
+    <div class="ribbon-group-label">Presentation</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <label style="font-size:11px;color:var(--muted);">Slide Duration (s):</label>
+      <input class="tb-input" type="number" id="slideDuration" value="3" min="1" max="60" style="width:54px;">
+    </div>
+    <div class="ribbon-group-label">Timing</div>
+  </div>
+</div>
+
+<!-- Version Toolbar -->
+<div id="version" class="ribbon-toolbar">
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <button class="tb-btn" onclick="saveVersion()"><span class="tb-icon">💾</span> Save Version</button>
+      <button class="tb-btn" onclick="loadVersionFromPanel()"><span class="tb-icon">📂</span> Load Selected</button>
+      <button class="tb-btn" onclick="deleteVersionFromPanel()"><span class="tb-icon">🗑</span> Delete Selected</button>
+    </div>
+    <div class="ribbon-group-label">Version History</div>
+  </div>
+</div>
+
+<!-- View Toolbar -->
+<div id="view" class="ribbon-toolbar">
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <button class="tb-btn small" onclick="zoomPage(1.1)"><span class="tb-icon">🔍</span> Zoom In</button>
+      <button class="tb-btn small" onclick="zoomPage(0.9)"><span class="tb-icon">🔎</span> Zoom Out</button>
+      <button class="tb-btn small" onclick="resetZoom()">100%</button>
+    </div>
+    <div class="ribbon-group-label">Zoom</div>
+  </div>
+  <div class="ribbon-group">
+    <div class="ribbon-group-row">
+      <button class="tb-btn small" onclick="togglePagePanel()"><span class="tb-icon">📋</span> Pages Panel</button>
+    </div>
+    <div class="ribbon-group-label">Panels</div>
+  </div>
+</div>
+
+<!-- Find Bar -->
+<div class="find-bar" id="findBar">
+  <span style="font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;">Find:</span>
+  <input type="text" id="findInput" placeholder="Search text..." onkeydown="if(event.key==='Enter')findText()">
+  <span style="font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;">Replace:</span>
+  <input type="text" id="replaceInput" placeholder="Replace with...">
+  <button onclick="findText()">Find</button>
+  <button onclick="replaceText()">Replace</button>
+  <button onclick="replaceAllText()">Replace All</button>
+  <button class="find-bar-close" onclick="toggleFindBar()">×</button>
+</div>
+
+<!-- Editor Layout -->
+<div class="editor-layout">
+
+  <!-- Pages Sidebar -->
+  <aside class="pages-panel" id="pagesPanel">
+    <div>
+      <div class="panel-section-title">Pages</div>
+      <div id="thumbnails"></div>
+    </div>
+    <div>
+      <div class="panel-section-title">Version History</div>
+      <div id="versionPanel"></div>
+    </div>
+  </aside>
+
+  <!-- Canvas -->
+  <div class="canvas-area" id="contentArea">
+    <!-- Pages dynamically added -->
+  </div>
+</div>
+
+<!-- Status Bar -->
+<div class="status-bar">
+  <span id="statusText">Ready</span>
+  <div class="status-bar-right">
+    <span id="wordCount">Words: 0</span>
+    <span id="pageInfo">Page 1 of 1</span>
+    <span id="zoomLabel">100%</span>
+  </div>
+</div>
+
+<!-- Slideshow Overlay -->
+<div class="slideshow-overlay" id="slideshowOverlay">
+  <div class="slideshow-slide" id="slideshowSlide"></div>
+  <div class="slideshow-controls">
+    <button onclick="prevSlide()">◀ Prev</button>
+    <span id="slideshowCounter" style="color:white;font-size:13px;align-self:center;"></span>
+    <button onclick="nextSlide()">Next ▶</button>
+    <button onclick="stopSlideshow()">✕ Exit</button>
+  </div>
+</div>
+
+<!-- Floating Graph Panel -->
+<div id="floatingPanel">
+  <div id="floatingPanelHeader">
+    📈 Graph Plotter
+    <button class="close-btn" onclick="closeGraphPanel()">✕</button>
+  </div>
+  <div class="graph-body">
+    <canvas id="graphCanvas" width="420" height="220"></canvas>
+    <div class="graph-controls">
+      <input type="text" id="functionInput" placeholder="e.g. x^2, sin(x), Math.cos(x)">
+      <button onclick="addFunction()">Plot</button>
+      <button onclick="insertGraphToEditor()">Insert</button>
+      <button onclick="clearAllFunctions()">Clear</button>
+      <button onclick="zoomGraphIn()">+ Zoom</button>
+      <button onclick="zoomGraphOut()">- Zoom</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──
+const INDEX_KEY = "doc.index";
+let docId = new URLSearchParams(window.location.search).get('id') || null;
+let pages = [], currentPage = 0;
+let selectedImage = null;
+let versions = [];
+let designSettings = [];
+let currentZoom = 1;
+let selectedVersionIndex = -1;
+let slideshowInterval = null;
+let slideshowIndex = 0;
+
+// ── Status ──
+function setStatus(msg) {
+  document.getElementById('statusText').textContent = msg;
+  setTimeout(() => document.getElementById('statusText').textContent = 'Ready', 3000);
+}
+
+// ── Tabs ──
+function switchTab(tab) {
+  document.querySelectorAll('.ribbon-toolbar').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const tb = document.getElementById(tab);
+  if (tb) tb.classList.add('active');
+  const btn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+  if (btn) btn.classList.add('active');
+}
+
+// ── Find / Replace ──
+function toggleFindBar() {
+  const bar = document.getElementById('findBar');
+  bar.classList.toggle('open');
+  if (bar.classList.contains('open')) document.getElementById('findInput').focus();
+}
+function findText() {
+  const q = document.getElementById('findInput').value;
+  if (!q) return;
+  window.find(q);
+}
+function replaceText() {
+  const q = document.getElementById('findInput').value;
+  const r = document.getElementById('replaceInput').value;
+  if (!q) return;
+  const sel = window.getSelection();
+  if (sel && sel.toString() === q) {
+    document.execCommand('insertText', false, r);
+  } else {
+    window.find(q);
+  }
+}
+function replaceAllText() {
+  const q = document.getElementById('findInput').value;
+  const r = document.getElementById('replaceInput').value;
+  if (!q) return;
+  pages.forEach(p => {
+    p.innerHTML = p.innerHTML.split(q).join(r);
+  });
+  setStatus('Replaced all instances.');
+}
+
+// ── Load / Save ──
+function loadDocument() {
+  if (!docId) return addPage();
+  const idx = JSON.parse(localStorage.getItem(INDEX_KEY) || '{"docs":{},"folders":{}}');
+  const doc = idx.docs[docId];
+  if (doc) document.getElementById('docTitleDisplay').textContent = '— ' + doc.title;
+  const data = JSON.parse(localStorage.getItem(`doc.data.${docId}`) || '{}');
+  if (data.pages && data.pages.length > 0) {
+    data.pages.forEach(p => addPage(p));
+  } else {
+    addPage();
+  }
+  versions = data.versions || [];
+  designSettings = data.design || [];
+  designSettings.forEach((style, i) => {
+    if (pages[i]) {
+      Object.assign(pages[i].style, style);
+    }
+  });
+  updateVersionPanel();
+  updateWordCount();
+}
+
+function saveDocument() {
+  if (!docId) return alert("No document ID.");
+  designSettings = pages.map(p => ({
+    background: p.style.background || '',
+    backgroundImage: p.style.backgroundImage || '',
+    backgroundSize: p.style.backgroundSize || '',
+    color: p.style.color || '',
+    fontFamily: p.style.fontFamily || '',
+    padding: p.style.padding || ''
+  }));
+  const payload = { pages: pages.map(p => p.innerHTML), versions, design: designSettings };
+  localStorage.setItem(`doc.data.${docId}`, JSON.stringify(payload));
+
+  // Update index updatedAt
+  const idx = JSON.parse(localStorage.getItem(INDEX_KEY) || '{"docs":{},"folders":{}}');
+  if (idx.docs[docId]) {
+    idx.docs[docId].updatedAt = new Date().toISOString();
+    localStorage.setItem(INDEX_KEY, JSON.stringify(idx));
+  }
+  setStatus('Document saved.');
+}
+
+// ── Pages ──
+function addPage(html = '') {
+  const page = document.createElement('div');
+  page.className = 'page';
+  page.contentEditable = 'true';
+  page.setAttribute('data-page-num', pages.length + 1);
+  page.innerHTML = html || '<p>Start typing here...</p>';
+  page.addEventListener('input', updateWordCount);
+  page.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveDocument(); }
+    if (e.ctrlKey && e.key === 'z') { e.preventDefault(); formatText('undo'); }
+    if (e.ctrlKey && e.key === 'y') { e.preventDefault(); formatText('redo'); }
+    if (e.ctrlKey && e.key === 'f') { e.preventDefault(); toggleFindBar(); }
+  });
+  document.getElementById('contentArea').appendChild(page);
+  pages.push(page);
+  updateThumbnails();
+  switchPage(pages.length - 1);
+  updatePageInfo();
+}
+
+function deletePage() {
+  if (pages.length <= 1) return setStatus('Cannot delete the only page.');
+  if (!confirm('Delete this page?')) return;
+  pages[currentPage].remove();
+  pages.splice(currentPage, 1);
+  currentPage = Math.max(0, currentPage - 1);
+  pages.forEach((p, i) => p.setAttribute('data-page-num', i + 1));
+  updateThumbnails();
+  switchPage(currentPage);
+  updatePageInfo();
+}
+
+function switchPage(index) {
+  currentPage = index;
+  pages.forEach((p, i) => p.style.display = (i === index) ? 'block' : 'none');
+  document.querySelectorAll('.page-thumb').forEach((t, i) => t.classList.toggle('active', i === index));
+  pages[index].focus();
+  updatePageInfo();
+}
+
+function updateThumbnails() {
+  const container = document.getElementById('thumbnails');
+  container.innerHTML = '';
+  pages.forEach((p, i) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'page-thumb' + (i === currentPage ? ' active' : '');
+    thumb.innerHTML = `
+      <div class="page-thumb-preview">
+        <div class="page-thumb-line" style="width:80%"></div>
+        <div class="page-thumb-line" style="width:60%"></div>
+        <div class="page-thumb-line" style="width:90%"></div>
+        <div class="page-thumb-line" style="width:45%"></div>
+      </div>
+      <div class="page-thumb-label">Page ${i + 1}</div>`;
+    thumb.onclick = () => switchPage(i);
+    container.appendChild(thumb);
+  });
+}
+
+function updatePageInfo() {
+  document.getElementById('pageInfo').textContent = `Page ${currentPage + 1} of ${pages.length}`;
+}
+
+function updateWordCount() {
+  const text = pages.map(p => p.innerText || '').join(' ');
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  document.getElementById('wordCount').textContent = `Words: ${words}`;
+}
+
+// ── Formatting ──
+function formatText(cmd, value = null) {
+  document.execCommand(cmd, false, value);
+}
+function applyFont(font) {
+  document.execCommand('fontName', false, font);
+}
+function applyFontSize(size) {
+  // Use px-based span approach
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  const span = document.createElement('span');
+  span.style.fontSize = size + 'pt';
+  try {
+    range.surroundContents(span);
+  } catch(e) {
+    document.execCommand('fontSize', false, 4);
+  }
+}
+function applyLineSpacing(val) {
+  pages[currentPage].style.lineHeight = val;
+}
+function highlightText() {
+  const color = document.getElementById("highlightColorPicker").value;
+  document.execCommand("backColor", false, color);
+}
+function clearFormatting() {
+  document.execCommand("removeFormat", false, null);
+}
+function insertHR() {
+  document.execCommand('insertHTML', false, '<hr style="border:1px solid #ccc;margin:12px 0;">');
+}
+function insertLink() {
+  const url = document.getElementById('linkUrl').value.trim();
+  if (!url) return alert('Enter a URL first.');
+  const text = window.getSelection().toString() || url;
+  document.execCommand('insertHTML', false, `<a href="${url}" target="_blank">${text}</a>`);
+}
+
+// ── Table ──
+function insertTable() {
+  const rows = parseInt(prompt("Number of rows:", "3")) || 3;
+  const cols = parseInt(prompt("Number of columns:", "3")) || 3;
+  let html = '<table style="border-collapse:collapse;width:100%;margin:8px 0;">';
+  for (let r = 0; r < rows; r++) {
+    html += '<tr>';
+    for (let c = 0; c < cols; c++) {
+      if (r === 0) {
+        html += `<th style="border:1px solid #999;padding:6px 10px;background:#f0f4ff;font-weight:600;text-align:left;">Header ${c + 1}</th>`;
+      } else {
+        html += `<td style="border:1px solid #999;padding:6px 10px;" contenteditable="true">&nbsp;</td>`;
+      }
+    }
+    html += '</tr>';
+  }
+  html += '</table>';
+  document.execCommand('insertHTML', false, html);
+}
+
+// ── Image ──
+function insertImage() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = document.createElement('img');
+      img.src = ev.target.result;
+      img.className = 'draggable';
+      img.style.cssText = 'top:20px;left:20px;width:220px;height:auto;';
+      pages[currentPage].appendChild(img);
+      selectedImage = img;
+      makeDraggableResizable(img);
+      setStatus('Image inserted. Drag to reposition.');
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+function deleteSelectedImage() {
+  if (selectedImage && selectedImage.parentNode) {
+    selectedImage.parentNode.removeChild(selectedImage);
+    selectedImage = null;
+    setStatus('Image deleted.');
+  }
+}
+function makeDraggableResizable(el) {
+  interact(el).draggable({
+    modifiers: [interact.modifiers.restrictRect({ restriction: 'parent' })],
+    listeners: { move: dragMoveListener }
+  }).resizable({
+    edges: { left: true, right: true, bottom: true, top: true },
+    listeners: { move: resizeMoveListener }
+  }).on('click', () => selectedImage = el);
+}
+function dragMoveListener(event) {
+  const t = event.target;
+  const x = (parseFloat(t.getAttribute('data-x')) || 0) + event.dx;
+  const y = (parseFloat(t.getAttribute('data-y')) || 0) + event.dy;
+  t.style.transform = `translate(${x}px,${y}px)`;
+  t.setAttribute('data-x', x); t.setAttribute('data-y', y);
+}
+function resizeMoveListener(event) {
+  const t = event.target;
+  t.style.width = event.rect.width + 'px';
+  t.style.height = event.rect.height + 'px';
+  const x = (parseFloat(t.getAttribute('data-x')) || 0) + event.deltaRect.left;
+  const y = (parseFloat(t.getAttribute('data-y')) || 0) + event.deltaRect.top;
+  t.style.transform = `translate(${x}px,${y}px)`;
+  t.setAttribute('data-x', x); t.setAttribute('data-y', y);
+}
+
+// ── Zoom ──
+function zoomPage(factor) {
+  currentZoom = Math.max(0.4, Math.min(2, currentZoom * factor));
+  document.getElementById('contentArea').style.zoom = currentZoom;
+  document.getElementById('zoomLabel').textContent = Math.round(currentZoom * 100) + '%';
+}
+function resetZoom() { currentZoom = 1; document.getElementById('contentArea').style.zoom = 1; document.getElementById('zoomLabel').textContent = '100%'; }
+
+// ── Toggle panels ──
+function togglePagePanel() {
+  const p = document.getElementById('pagesPanel');
+  p.style.display = p.style.display === 'none' ? '' : 'none';
+}
+
+// ── Versions ──
+function saveVersion() {
+  const snapshot = pages.map(p => p.innerHTML);
+  const timestamp = new Date().toLocaleString();
+  versions.push({ timestamp, snapshot });
+  updateVersionPanel();
+  saveDocument();
+  setStatus('Version saved: ' + timestamp);
+}
+function updateVersionPanel() {
+  const panel = document.getElementById('versionPanel');
+  panel.innerHTML = '';
+  if (!versions.length) {
+    panel.innerHTML = '<div style="font-size:10px;color:var(--muted);padding:4px;">No versions saved.</div>';
+    return;
+  }
+  versions.forEach((v, i) => {
+    const div = document.createElement('div');
+    div.className = 'version-item';
+    div.innerHTML = `<div class="version-time">${v.timestamp}</div>
+      <div class="version-actions">
+        <button onclick="restoreVersion(${i})">Restore</button>
+        <button onclick="deleteVersion(${i})">Delete</button>
+      </div>`;
+    panel.appendChild(div);
+  });
+}
+function restoreVersion(index) {
+  if (!confirm('Restore this version? Current content will be replaced.')) return;
+  const ver = versions[index];
+  if (!ver) return;
+  // Clear & rebuild
+  const area = document.getElementById('contentArea');
+  pages.forEach(p => p.remove());
+  pages = [];
+  ver.snapshot.forEach(html => addPage(html));
+  setStatus('Version restored.');
+}
+function deleteVersion(index) {
+  versions.splice(index, 1);
+  updateVersionPanel();
+  saveDocument();
+  setStatus('Version deleted.');
+}
+function loadVersionFromPanel() { setStatus('Click "Restore" next to a version in the sidebar.'); }
+function deleteVersionFromPanel() { setStatus('Click "Delete" next to a version in the sidebar.'); }
+
+// ── Design ──
+function changeBackgroundColor(color) { pages[currentPage].style.background = color; }
+function applyGradient(gradient) {
+  if (!gradient) { pages[currentPage].style.background = '#ffffff'; return; }
+  pages[currentPage].style.background = gradient;
+}
+function applyPattern(pattern) {
+  const page = pages[currentPage];
+  page.style.background = '#fff';
+  page.style.backgroundImage = 'none';
+  if (pattern === 'dots') { page.style.backgroundImage = 'radial-gradient(#ccc 1px, transparent 1px)'; page.style.backgroundSize = '20px 20px'; }
+  else if (pattern === 'grid') { page.style.backgroundImage = 'linear-gradient(#ddd 1px, transparent 1px),linear-gradient(to right,#ddd 1px,transparent 1px)'; page.style.backgroundSize = '20px 20px'; }
+  else if (pattern === 'lines') { page.style.backgroundImage = 'linear-gradient(#ddd 1px, transparent 1px)'; page.style.backgroundSize = '100% 28px'; }
+}
+function applyTemplate(template) {
+  if (!template) return;
+  const page = pages[currentPage];
+  const templates = {
+    classic: { fontFamily: 'Times New Roman, serif', background: '#ffffff', color: '#000', padding: '96px' },
+    modern: { fontFamily: 'Segoe UI, sans-serif', background: '#f8f9fb', color: '#333', padding: '80px 96px' },
+    academic: { fontFamily: 'Georgia, serif', background: '#fffdf5', color: '#222', padding: '100px' },
+    dark: { fontFamily: 'Arial, sans-serif', background: '#1e1e2e', color: '#e0e0e0', padding: '96px' }
+  };
+  if (templates[template]) Object.assign(page.style, templates[template]);
+}
+
+// ── Export ──
+async function exportPDF() {
+  setStatus('Generating PDF...');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('p', 'pt', 'a4');
+  for (let i = 0; i < pages.length; i++) {
+    const prevDisplay = pages[i].style.display;
+    pages[i].style.display = 'block';
+    const canvas = await html2canvas(pages[i], { scale: 2 });
+    pages[i].style.display = prevDisplay;
+    const imgData = canvas.toDataURL('image/png');
+    const pw = doc.internal.pageSize.getWidth();
+    const ph = doc.internal.pageSize.getHeight();
+    doc.addImage(imgData, 'PNG', 0, 0, pw, ph);
+    if (i < pages.length - 1) doc.addPage();
+  }
+  doc.save('document.pdf');
+  setStatus('PDF exported.');
+}
+async function exportPNG() {
+  setStatus('Generating PNG...');
