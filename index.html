@@ -5,6 +5,10 @@
 <title>Pro Document — Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2b579a">
+
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root {
   --bg: #f3f3f3;
@@ -417,6 +421,7 @@ body { font-family:'Space Grotesk',system-ui,sans-serif; background:var(--bg); c
 </head>
 <body>
 
+
 <!-- LOADING SCREEN -->
 <div id="loadingScreen">
   <div class="loader-particles" id="particles"></div>
@@ -440,6 +445,7 @@ body { font-family:'Space Grotesk',system-ui,sans-serif; background:var(--bg); c
     </div>
   </div>
 </div>
+
 
 <!-- AUTH MODAL -->
 <div id="authModal">
@@ -523,6 +529,10 @@ body { font-family:'Space Grotesk',system-ui,sans-serif; background:var(--bg); c
       <div class="logo-icon">📋</div>
       Pro Document
     </div>
+<button class="ribbon-btn" id="installBtn" style="display:none;">
+  <span class="icon">⬇️</span>
+  Install App
+</button>
     <button class="ribbon-btn primary" onclick="openCreateDocModal()">
       <span class="icon">📄</span> New Document
     </button>
@@ -1224,6 +1234,50 @@ function render() {
     });
   }
   renderFolders();
+}
+</script>
+<script>
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e)=>{
+    e.preventDefault();
+    deferredPrompt = e;
+
+    const btn = document.getElementById("installBtn");
+
+    if(btn){
+        btn.style.display="flex";
+
+        btn.onclick = async ()=>{
+            deferredPrompt.prompt();
+
+            const result = await deferredPrompt.userChoice;
+
+            if(result.outcome==="accepted"){
+                console.log("App installed");
+            }
+
+            deferredPrompt=null;
+            btn.style.display="none";
+        };
+    }
+});
+
+
+if("serviceWorker" in navigator){
+
+window.addEventListener("load",()=>{
+
+navigator.serviceWorker.register("service-worker.js")
+.then(()=>{
+console.log("PWA Service Worker Registered");
+})
+.catch(err=>{
+console.log("SW Error:",err);
+});
+
+});
+
 }
 </script>
 </body>
