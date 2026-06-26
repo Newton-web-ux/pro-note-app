@@ -543,6 +543,13 @@ body { font-family:'Space Grotesk',system-ui,sans-serif; background:var(--bg); c
   <span class="icon">⬇️</span>
   Install App
 </button>
+<button class="ribbon-btn"
+onclick="location.href='upgrade.html'">
+
+<span class="icon">⭐</span>
+Upgrade Pro
+
+</button>
     <button class="ribbon-btn primary" onclick="openCreateDocModal()">
       <span class="icon">📄</span> New Document
     </button>
@@ -1027,28 +1034,142 @@ function openCreateFolderModal(parent = null) {
   openModal('createFolderModal');
 }
 
-function confirmCreateDoc() {
-  const title = document.getElementById('docNameInput').value.trim() || 'Untitled Document';
-  const idx = readIndex(), id = newId();
-  idx.docs[id] = { id, title, folder: currentFolder, starred: false, deleted: false, createdAt: now(), updatedAt: now() };
-  writeIndex(idx);
-  // Document content stored under user-scoped key
-  localStorage.setItem(userDocDataKey(id), JSON.stringify({ pages: [], versions: [], design: [] }));
-  closeModal('createDocModal');
-  render(); logActivity('create_doc');
-  setStatus('Document "' + title + '" created.');
+async function confirmCreateDoc(){
+
+const email=currentUser.email;
+
+
+const res =
+await fetch(
+GAS_URL+
+"?action=checkLimit&email="+email
+);
+
+
+const limit=await res.json();
+
+
+
+if(!limit.allowDoc){
+
+alert(
+"Free plan limit reached.\n\nMaximum 3 documents allowed.\nUpgrade to Pro for unlimited documents."
+);
+
+location.href="upgrade.html";
+
+return;
+
 }
 
-function confirmCreateFolder() {
-  const name = document.getElementById('folderNameInput').value.trim();
-  if (!name) return;
-  const idx = readIndex(), id = newId();
-  idx.folders[id] = { id, name, parent: window._pendingFolderParent || currentFolder, deleted: false };
-  writeIndex(idx);
-  closeModal('createFolderModal'); renderFolders();
-  setStatus('Folder "' + name + '" created.');
+
+
+const title =
+document.getElementById('docNameInput')
+.value.trim()
+||"Untitled Document";
+
+
+const idx=readIndex();
+
+const id=newId();
+
+
+idx.docs[id]={
+id,
+title,
+folder:currentFolder,
+starred:false,
+deleted:false,
+createdAt:now(),
+updatedAt:now()
+};
+
+
+writeIndex(idx);
+
+
+localStorage.setItem(
+userDocDataKey(id),
+JSON.stringify({
+pages:[],
+versions:[],
+design:[]
+})
+);
+
+
+closeModal('createDocModal');
+
+render();
+
+logActivity('create_doc');
+
 }
 
+async function confirmCreateFolder(){
+
+
+const email=currentUser.email;
+
+
+const res =
+await fetch(
+GAS_URL+
+"?action=checkLimit&email="+email
+);
+
+
+const limit=await res.json();
+
+
+
+if(!limit.allowFolder){
+
+alert(
+"Free plan allows only 1 folder.\nUpgrade to Pro for unlimited folders."
+);
+
+location.href="upgrade.html";
+
+return;
+
+}
+
+
+
+const name =
+document.getElementById('folderNameInput')
+.value.trim();
+
+
+if(!name)return;
+
+
+
+const idx=readIndex();
+
+const id=newId();
+
+
+
+idx.folders[id]={
+
+id,
+name,
+parent:null,
+deleted:false
+
+};
+
+
+writeIndex(idx);
+
+closeModal('createFolderModal');
+
+renderFolders();
+
+}
 function openRenameModal(id) {
   const idx = readIndex();
   document.getElementById('renameDocId').value = id;
