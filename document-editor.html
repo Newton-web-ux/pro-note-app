@@ -681,6 +681,16 @@ img.draggable { position: absolute; cursor: move; max-width: 90%; }
     </div>
     <div class="ribbon-group-label">Background</div>
   </div>
+<select onchange="changePageSize(this.value)">
+
+<option>A4</option>
+<option>A3</option>
+<option>A5</option>
+<option>B4</option>
+<option>B5</option>
+<option>Letter</option>
+
+</select>
   <div class="ribbon-group">
     <div class="ribbon-group-row">
       <select class="tb-select" onchange="applyGradient(this.value)" style="width:120px;">
@@ -1405,6 +1415,58 @@ if (!docId) {
   addPage();
 } else {
   loadDocument();
+}
+function changePageSize(size){
+
+let page=pages[currentPage];
+
+
+let sizes={
+
+
+A3:[
+"1123px",
+"1587px"
+],
+
+A4:[
+"816px",
+"1056px"
+],
+
+A5:[
+"559px",
+"794px"
+],
+
+B4:[
+"729px",
+"1032px"
+],
+
+B5:[
+"516px",
+"729px"
+],
+
+Letter:[
+"816px",
+"1056px"
+
+]
+
+};
+
+
+page.style.width=
+sizes[size][0];
+
+page.style.minHeight=
+sizes[size][1];
+
+
+setStatus(size+" page applied");
+
 }
 </script>
 </body>
