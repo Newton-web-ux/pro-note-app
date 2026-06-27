@@ -915,7 +915,6 @@ action:"load",
 
 id:docId
 
-
 })
 
 })
@@ -929,24 +928,70 @@ id:docId
 if(data.status=="found"){
 
 
-let obj=
-JSON.parse(data.content);
+let doc=JSON.parse(data.content);
 
 
 
-obj.pages.forEach(p=>{
+doc.pages.forEach(p=>{
 
-addPage(p);
+
+addPage(p.html);
+
+
+let page=pages[pages.length-1];
+
+
+
+Object.assign(
+page.style,
+p.style
+);
+
+
+
+p.images.forEach(i=>{
+
+
+let img=document.createElement("img");
+
+img.src=i.src;
+
+img.style.cssText=i.style;
+
+
+if(i.x)
+img.setAttribute("data-x",i.x);
+
+
+if(i.y)
+img.setAttribute("data-y",i.y);
+
+
+
+img.className="draggable";
+
+
+page.appendChild(img);
+
+
+makeDraggableResizable(img);
+
 
 });
 
 
-setStatus("Loaded from Drive ☁️");
+
+});
+
+
+
+setStatus("Complete document loaded ☁️");
 
 
 }
 
 else{
+
 
 addPage();
 
@@ -956,21 +1001,67 @@ addPage();
 
 });
 
-
 }
 function saveDocument(){
 
 
-let content=
-JSON.stringify({
+let documentData={
 
-pages:
-pages.map(p=>p.innerHTML),
+pages: pages.map(page=>({
 
-design:
-pages.map(p=>p.style.cssText)
+html: page.innerHTML,
 
-});
+
+style: {
+
+width:page.style.width,
+
+minHeight:page.style.minHeight,
+
+background:page.style.background,
+
+backgroundImage:page.style.backgroundImage,
+
+backgroundSize:page.style.backgroundSize,
+
+fontFamily:page.style.fontFamily,
+
+fontSize:page.style.fontSize,
+
+color:page.style.color,
+
+padding:page.style.padding,
+
+lineHeight:page.style.lineHeight
+
+},
+
+
+images:[...page.querySelectorAll("img")].map(img=>({
+
+src:img.src,
+
+style:img.style.cssText,
+
+x:img.getAttribute("data-x"),
+
+y:img.getAttribute("data-y")
+
+}))
+
+
+})),
+
+
+title:
+document.getElementById("docTitleDisplay").innerText,
+
+
+time:
+new Date().toISOString()
+
+
+};
 
 
 
@@ -984,11 +1075,9 @@ action:"save",
 
 id:docId,
 
-title:
-document.getElementById("docTitleDisplay").innerText,
+title:documentData.title,
 
-content:content
-
+content:JSON.stringify(documentData)
 
 })
 
@@ -996,12 +1085,11 @@ content:content
 
 .then(r=>r.json())
 
-.then(d=>{
+.then(()=>{
 
-setStatus("Saved to Google Drive ☁️");
+setStatus("Full document saved ☁️");
 
 });
-
 
 
 }
