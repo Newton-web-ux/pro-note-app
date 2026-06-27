@@ -681,16 +681,14 @@ img.draggable { position: absolute; cursor: move; max-width: 90%; }
     </div>
     <div class="ribbon-group-label">Background</div>
   </div>
-<select onchange="changePageSize(this.value)">
-
-<option>A4</option>
-<option>A3</option>
-<option>A5</option>
-<option>B4</option>
-<option>B5</option>
-<option>Letter</option>
-
-</select>
+  <select onchange="changePageSize(this.value)">
+    <option>A4</option>
+    <option>A3</option>
+    <option>A5</option>
+    <option>B4</option>
+    <option>B5</option>
+    <option>Letter</option>
+  </select>
   <div class="ribbon-group">
     <div class="ribbon-group-row">
       <select class="tb-select" onchange="applyGradient(this.value)" style="width:120px;">
@@ -840,7 +838,8 @@ img.draggable { position: absolute; cursor: move; max-width: 90%; }
 
 <script>
 // ── State ──
-const INDEX_KEY = "doc.index";
+const GAS_URL =
+"https://script.google.com/macros/s/AKfycbzybAi0aMvbLnx55WEFlBSXUJOU-Ej9bv2ZbU44gvW_qczTCxoGBiIWweIyyF6E-eIbBg/exec";
 let docId = new URLSearchParams(window.location.search).get('id') || null;
 let pages = [], currentPage = 0;
 let selectedImage = null;
@@ -850,6 +849,14 @@ let currentZoom = 1;
 let selectedVersionIndex = -1;
 let slideshowInterval = null;
 let slideshowIndex = 0;
+
+// ── Who's editing? (used to scope Drive storage to this user) ──
+let currentUser = null;
+(function loadSession() {
+  const saved = localStorage.getItem('pd_session');
+  if (saved) { try { currentUser = JSON.parse(saved); } catch(e) {} }
+})();
+function currentEmail() { return currentUser ? currentUser.email : 'guest'; }
 
 // ── Status ──
 function setStatus(msg) {
@@ -899,49 +906,121 @@ function replaceAllText() {
   setStatus('Replaced all instances.');
 }
 
-// ── Load / Save ──
+/* ─────────────────────────────────────────────
+   LOAD — pulls the full document (text, styling,
+   tables, math/LaTeX, links, graphs-as-images,
+   draggable images + their position, and version
+   history) back out of Google Drive.
+───────────────────────────────────────────── */
 function loadDocument() {
-  if (!docId) return addPage();
-  const idx = JSON.parse(localStorage.getItem(INDEX_KEY) || '{"docs":{},"folders":{}}');
-  const doc = idx.docs[docId];
-  if (doc) document.getElementById('docTitleDisplay').textContent = '— ' + doc.title;
-  const data = JSON.parse(localStorage.getItem(`doc.data.${docId}`) || '{}');
-  if (data.pages && data.pages.length > 0) {
-    data.pages.forEach(p => addPage(p));
-  } else {
-    addPage();
+  if (!docId) {
+    document.getElementById('docTitleDisplay').textContent = '— New Document';
+    return addPage();
   }
-  versions = data.versions || [];
-  designSettings = data.design || [];
-  designSettings.forEach((style, i) => {
-    if (pages[i]) {
-      Object.assign(pages[i].style, style);
+  fetch(GAS_URL, {
+    method: "POST",
+    body: JSON.stringify({ action: "load", id: docId, email: currentEmail() })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === "found") {
+      let doc = JSON.parse(data.content);
+      if (doc.title) document.getElementById('docTitleDisplay').textContent = '— ' + doc.title;
+
+      doc.pages.forEach(p => {
+        addPage(p.html);
+        let page = pages[pages.length - 1];
+        Object.assign(page.style, p.style);
+        // Re-attach draggable images (kept out of p.html on save so they
+        // don't get duplicated — see saveDocument()).
+        (p.images || []).forEach(i => {
+          let img = document.createElement("img");
+          img.src = i.src;
+          img.style.cssText = i.style;
+          if (i.x) img.setAttribute("data-x", i.x);
+          if (i.y) img.setAttribute("data-y", i.y);
+          img.className = "draggable";
+          page.appendChild(img);
+          makeDraggableResizable(img);
+        });
+      });
+
+      versions = doc.versions || [];
+      updateVersionPanel();
+      updateWordCount();
+      if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+      setStatus("Complete document loaded ☁️");
+    } else {
+      document.getElementById('docTitleDisplay').textContent = '— New Document';
+      addPage();
     }
+  })
+  .catch(() => {
+    setStatus("Could not reach Google Drive — starting blank.");
+    addPage();
   });
-  updateVersionPanel();
-  updateWordCount();
 }
 
+/* ─────────────────────────────────────────────
+   SAVE — pushes everything to Google Drive:
+   text/HTML, page background/pattern/template
+   styling, tables, math symbols & LaTeX, links,
+   inserted graphs (saved as plain images), and
+   draggable images (saved separately, with their
+   drag position, so they stay movable on reload —
+   and aren't duplicated in the page HTML).
+───────────────────────────────────────────── */
 function saveDocument() {
   if (!docId) return alert("No document ID.");
-  designSettings = pages.map(p => ({
-    background: p.style.background || '',
-    backgroundImage: p.style.backgroundImage || '',
-    backgroundSize: p.style.backgroundSize || '',
-    color: p.style.color || '',
-    fontFamily: p.style.fontFamily || '',
-    padding: p.style.padding || ''
-  }));
-  const payload = { pages: pages.map(p => p.innerHTML), versions, design: designSettings };
-  localStorage.setItem(`doc.data.${docId}`, JSON.stringify(payload));
 
-  // Update index updatedAt
-  const idx = JSON.parse(localStorage.getItem(INDEX_KEY) || '{"docs":{},"folders":{}}');
-  if (idx.docs[docId]) {
-    idx.docs[docId].updatedAt = new Date().toISOString();
-    localStorage.setItem(INDEX_KEY, JSON.stringify(idx));
-  }
-  setStatus('Document saved.');
+  let documentData = {
+    pages: pages.map(page => {
+      const clone = page.cloneNode(true);
+      clone.querySelectorAll('img.draggable').forEach(img => img.remove());
+      return {
+        html: clone.innerHTML,
+        style: {
+          width: page.style.width,
+          minHeight: page.style.minHeight,
+          background: page.style.background,
+          backgroundImage: page.style.backgroundImage,
+          backgroundSize: page.style.backgroundSize,
+          fontFamily: page.style.fontFamily,
+          fontSize: page.style.fontSize,
+          color: page.style.color,
+          padding: page.style.padding,
+          lineHeight: page.style.lineHeight
+        },
+        images: [...page.querySelectorAll('img.draggable')].map(img => ({
+          src: img.src,
+          style: img.style.cssText,
+          x: img.getAttribute('data-x'),
+          y: img.getAttribute('data-y')
+        }))
+      };
+    }),
+    versions: versions,
+    title: document.getElementById("docTitleDisplay").textContent.replace(/^—\s*/, ''),
+    time: new Date().toISOString()
+  };
+
+  setStatus("Saving to Drive…");
+  fetch(GAS_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "save",
+      id: docId,
+      email: currentEmail(),
+      title: documentData.title,
+      content: JSON.stringify(documentData)
+    })
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.status === 'saved') setStatus("Full document saved ☁️");
+    else setStatus("Save failed — please try again.");
+  })
+  .catch(() => setStatus("Could not reach Google Drive."));
 }
 
 // ── Pages ──
@@ -1409,65 +1488,24 @@ function closeGraphPanel() { document.getElementById('floatingPanel').style.disp
   };
 })();
 
+// ── Page size ──
+function changePageSize(size) {
+  let page = pages[currentPage];
+  let sizes = {
+    A3: ["1123px", "1587px"],
+    A4: ["816px", "1056px"],
+    A5: ["559px", "794px"],
+    B4: ["729px", "1032px"],
+    B5: ["516px", "729px"],
+    Letter: ["816px", "1056px"]
+  };
+  page.style.width = sizes[size][0];
+  page.style.minHeight = sizes[size][1];
+  setStatus(size + " page applied");
+}
+
 // ── Init ──
-if (!docId) {
-  document.getElementById('docTitleDisplay').textContent = '— New Document';
-  addPage();
-} else {
-  loadDocument();
-}
-function changePageSize(size){
-
-let page=pages[currentPage];
-
-
-let sizes={
-
-
-A3:[
-"1123px",
-"1587px"
-],
-
-A4:[
-"816px",
-"1056px"
-],
-
-A5:[
-"559px",
-"794px"
-],
-
-B4:[
-"729px",
-"1032px"
-],
-
-B5:[
-"516px",
-"729px"
-],
-
-Letter:[
-"816px",
-"1056px"
-
-]
-
-};
-
-
-page.style.width=
-sizes[size][0];
-
-page.style.minHeight=
-sizes[size][1];
-
-
-setStatus(size+" page applied");
-
-}
+loadDocument();
 </script>
 </body>
 </html>
