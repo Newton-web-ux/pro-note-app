@@ -841,6 +841,8 @@ img.draggable { position: absolute; cursor: move; max-width: 90%; }
 <script>
 // ── State ──
 const INDEX_KEY = "doc.index";
+const GAS_URL =
+"https://script.google.com/macros/s/AKfycbyJpfzGzXqNyayGPjpV9xc2VwbF1uo56Y_cawE1i2MdN9SrEmSwMgxDRmgPazLekcTedA/exec";
 let docId = new URLSearchParams(window.location.search).get('id') || null;
 let pages = [], currentPage = 0;
 let selectedImage = null;
@@ -900,48 +902,108 @@ function replaceAllText() {
 }
 
 // ── Load / Save ──
-function loadDocument() {
-  if (!docId) return addPage();
-  const idx = JSON.parse(localStorage.getItem(INDEX_KEY) || '{"docs":{},"folders":{}}');
-  const doc = idx.docs[docId];
-  if (doc) document.getElementById('docTitleDisplay').textContent = '— ' + doc.title;
-  const data = JSON.parse(localStorage.getItem(`doc.data.${docId}`) || '{}');
-  if (data.pages && data.pages.length > 0) {
-    data.pages.forEach(p => addPage(p));
-  } else {
-    addPage();
-  }
-  versions = data.versions || [];
-  designSettings = data.design || [];
-  designSettings.forEach((style, i) => {
-    if (pages[i]) {
-      Object.assign(pages[i].style, style);
-    }
-  });
-  updateVersionPanel();
-  updateWordCount();
+function loadDocument(){
+
+
+fetch(GAS_URL,{
+
+method:"POST",
+
+body:JSON.stringify({
+
+action:"load",
+
+id:docId
+
+
+})
+
+})
+
+
+.then(r=>r.json())
+
+.then(data=>{
+
+
+if(data.status=="found"){
+
+
+let obj=
+JSON.parse(data.content);
+
+
+
+obj.pages.forEach(p=>{
+
+addPage(p);
+
+});
+
+
+setStatus("Loaded from Drive ☁️");
+
+
 }
 
-function saveDocument() {
-  if (!docId) return alert("No document ID.");
-  designSettings = pages.map(p => ({
-    background: p.style.background || '',
-    backgroundImage: p.style.backgroundImage || '',
-    backgroundSize: p.style.backgroundSize || '',
-    color: p.style.color || '',
-    fontFamily: p.style.fontFamily || '',
-    padding: p.style.padding || ''
-  }));
-  const payload = { pages: pages.map(p => p.innerHTML), versions, design: designSettings };
-  localStorage.setItem(`doc.data.${docId}`, JSON.stringify(payload));
+else{
 
-  // Update index updatedAt
-  const idx = JSON.parse(localStorage.getItem(INDEX_KEY) || '{"docs":{},"folders":{}}');
-  if (idx.docs[docId]) {
-    idx.docs[docId].updatedAt = new Date().toISOString();
-    localStorage.setItem(INDEX_KEY, JSON.stringify(idx));
-  }
-  setStatus('Document saved.');
+addPage();
+
+}
+
+
+
+});
+
+
+}
+function saveDocument(){
+
+
+let content=
+JSON.stringify({
+
+pages:
+pages.map(p=>p.innerHTML),
+
+design:
+pages.map(p=>p.style.cssText)
+
+});
+
+
+
+fetch(GAS_URL,{
+
+method:"POST",
+
+body:JSON.stringify({
+
+action:"save",
+
+id:docId,
+
+title:
+document.getElementById("docTitleDisplay").innerText,
+
+content:content
+
+
+})
+
+})
+
+.then(r=>r.json())
+
+.then(d=>{
+
+setStatus("Saved to Google Drive ☁️");
+
+});
+
+
+
 }
 
 // ── Pages ──
